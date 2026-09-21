@@ -6,6 +6,9 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 
 **Arquitectura 0.2:** WebSocket, captura ADC DMA con trigger, Vector/Waveform, subdiagramas, archivos de proyecto, I²C multibyte y WebSerial directo. La explicación técnica y los límites están en [docs/ARQUITECTURA-0.2.md](docs/ARQUITECTURA-0.2.md).
 
+<img width="1533" height="696" alt="image" src="https://github.com/user-attachments/assets/b3df6344-da90-4781-8f01-ca82b9e209f8" />
+
+
 ## Linux
 
 Descarga `FlowLab-0.2-Linux.tar.gz`, extrae y ejecuta `sh instalar-linux.sh`, luego `sh start.sh`. Necesita Python 3.10+ con venv; los paquetes Python están incluidos para instalación offline. Incluye el mismo editor y soporte ESP32. Consulta [la guía Linux](docs/LINUX.md) para permisos USB, WebSerial y construcción del ejecutable nativo. Esta entrega Linux se distribuye como aplicación Python, no como ELF precompilado.
