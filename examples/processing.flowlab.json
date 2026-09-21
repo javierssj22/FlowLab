@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "name": "Procesamiento · ruido y estadísticas",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "noise",
+      "type": "random",
+      "label": "Ruido reproducible",
+      "x": 50,
+      "y": 70,
+      "params": {
+        "min": -1,
+        "max": 1,
+        "seed": 12345
+      }
+    },
+    {
+      "id": "average",
+      "type": "movingAverage",
+      "label": "Media móvil · 16 muestras",
+      "x": 350,
+      "y": 70,
+      "params": {
+        "window": 16
+      }
+    },
+    {
+      "id": "scope",
+      "type": "chart",
+      "label": "Señal suavizada",
+      "x": 650,
+      "y": 70,
+      "params": {
+        "unit": "V"
+      }
+    },
+    {
+      "id": "rms",
+      "type": "rms",
+      "label": "RMS · 32 muestras",
+      "x": 350,
+      "y": 260,
+      "params": {
+        "window": 32
+      }
+    },
+    {
+      "id": "rmsDisplay",
+      "type": "gauge",
+      "label": "Nivel eficaz",
+      "x": 650,
+      "y": 260,
+      "params": {
+        "unit": "RMS",
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "stats",
+      "type": "runningStat",
+      "label": "Desviación estándar",
+      "x": 350,
+      "y": 450,
+      "params": {
+        "mode": "stddev"
+      }
+    },
+    {
+      "id": "statsDisplay",
+      "type": "gauge",
+      "label": "Dispersión de la señal",
+      "x": 650,
+      "y": 450,
+      "params": {
+        "unit": "σ",
+        "min": 0,
+        "max": 1
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "noise",
+      "to": "average",
+      "input": "in"
+    },
+    {
+      "from": "average",
+      "to": "scope",
+      "input": "in"
+    },
+    {
+      "from": "noise",
+      "to": "rms",
+      "input": "in"
+    },
+    {
+      "from": "rms",
+      "to": "rmsDisplay",
+      "input": "in"
+    },
+    {
+      "from": "noise",
+      "to": "stats",
+      "input": "in"
+    },
+    {
+      "from": "stats",
+      "to": "statsDisplay",
+      "input": "in"
+    }
+  ]
+}

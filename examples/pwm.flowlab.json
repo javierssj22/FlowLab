@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "name": "ESP32 · Control PWM",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "knob",
+      "type": "slider",
+      "label": "Potencia PWM",
+      "x": 90,
+      "y": 150,
+      "params": {
+        "value": 0,
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "id": "pwm",
+      "type": "pwm",
+      "label": "ESP32 · PWM",
+      "x": 410,
+      "y": 150,
+      "params": {
+        "pin": 25,
+        "frequency": 1000
+      }
+    },
+    {
+      "id": "meter",
+      "type": "gauge",
+      "label": "Duty cycle",
+      "x": 740,
+      "y": 150,
+      "params": {
+        "unit": " / 255",
+        "min": 0,
+        "max": 255
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "knob",
+      "to": "pwm",
+      "input": "in"
+    },
+    {
+      "from": "pwm",
+      "to": "meter",
+      "input": "in"
+    }
+  ]
+}

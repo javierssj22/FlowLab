@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "name": "I²C · registro y lectura de seis bytes",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "register",
+      "type": "vector",
+      "label": "Vector numérico",
+      "x": 50,
+      "y": 80,
+      "params": {
+        "values": "[0]"
+      }
+    },
+    {
+      "id": "sensor",
+      "type": "i2cTransfer",
+      "label": "ESP32 · I²C multibyte",
+      "x": 350,
+      "y": 80,
+      "params": {
+        "address": 72,
+        "readCount": 6,
+        "stop": "repeated-start"
+      }
+    },
+    {
+      "id": "byte",
+      "type": "vectorAt",
+      "label": "Índice de vector",
+      "x": 650,
+      "y": 80,
+      "params": {
+        "index": 0
+      }
+    },
+    {
+      "id": "value",
+      "type": "gauge",
+      "label": "Indicador numérico",
+      "x": 950,
+      "y": 80,
+      "params": {
+        "unit": "byte",
+        "min": 0,
+        "max": 255
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "register",
+      "to": "sensor",
+      "input": "tx"
+    },
+    {
+      "from": "sensor",
+      "to": "byte",
+      "input": "in"
+    },
+    {
+      "from": "byte",
+      "to": "value",
+      "input": "in"
+    }
+  ]
+}

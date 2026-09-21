@@ -1,0 +1,9 @@
+{
+  "name": "flowlab-local",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Open-source visual dataflow laboratory with ESP32 integration",
+  "license": "MIT",
+  "scripts": {"start": "python server.py", "test": "node --test tests/*.test.mjs"}
+}

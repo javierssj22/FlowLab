@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "name": "ESP32 · Adquisición analógica",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "adc",
+      "type": "adc",
+      "label": "ESP32 · ADC",
+      "x": 80,
+      "y": 120,
+      "params": {
+        "pin": 32,
+        "mode": "raw"
+      }
+    },
+    {
+      "id": "scale",
+      "type": "map",
+      "label": "Escalar rango",
+      "x": 360,
+      "y": 120,
+      "params": {
+        "inMin": 0,
+        "inMax": 4095,
+        "outMin": 0,
+        "outMax": 3.3
+      }
+    },
+    {
+      "id": "scope",
+      "type": "chart",
+      "label": "Osciloscopio",
+      "x": 650,
+      "y": 70,
+      "params": {
+        "unit": "V"
+      }
+    },
+    {
+      "id": "meter",
+      "type": "gauge",
+      "label": "Indicador numérico",
+      "x": 650,
+      "y": 260,
+      "params": {
+        "unit": "V",
+        "min": 0,
+        "max": 3.3
+      }
+    },
+    {
+      "id": "log",
+      "type": "log",
+      "label": "Registro de datos",
+      "x": 940,
+      "y": 120,
+      "params": {
+        "unit": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "adc",
+      "to": "scale",
+      "input": "in"
+    },
+    {
+      "from": "scale",
+      "to": "scope",
+      "input": "in"
+    },
+    {
+      "from": "scale",
+      "to": "meter",
+      "input": "in"
+    },
+    {
+      "from": "scale",
+      "to": "log",
+      "input": "in"
+    }
+  ]
+}

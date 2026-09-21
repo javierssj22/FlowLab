@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "name": "Contador con realimentación",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "one",
+      "type": "constant",
+      "label": "Constante",
+      "x": 60,
+      "y": 60,
+      "params": {
+        "value": 1
+      }
+    },
+    {
+      "id": "delay",
+      "type": "delay",
+      "label": "Memoria de un ciclo",
+      "x": 60,
+      "y": 260,
+      "params": {
+        "initial": 0
+      }
+    },
+    {
+      "id": "sum",
+      "type": "add",
+      "label": "Suma",
+      "x": 370,
+      "y": 140,
+      "params": {}
+    },
+    {
+      "id": "meter",
+      "type": "gauge",
+      "label": "Indicador numérico",
+      "x": 680,
+      "y": 140,
+      "params": {
+        "unit": "ciclos",
+        "min": 0,
+        "max": 100
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "one",
+      "to": "sum",
+      "input": "a"
+    },
+    {
+      "from": "delay",
+      "to": "sum",
+      "input": "b"
+    },
+    {
+      "from": "sum",
+      "to": "delay",
+      "input": "in"
+    },
+    {
+      "from": "sum",
+      "to": "meter",
+      "input": "in"
+    }
+  ]
+}

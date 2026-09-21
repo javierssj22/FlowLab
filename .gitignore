@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+work/
+.venv/
+.venv-linux/
+node_modules/

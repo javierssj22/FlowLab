@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "name": "SubVI · integración encapsulada",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "source",
+      "type": "constant",
+      "label": "Constante",
+      "x": 50,
+      "y": 80,
+      "params": {
+        "value": 2
+      }
+    },
+    {
+      "id": "module",
+      "type": "subvi",
+      "label": "Subdiagrama",
+      "x": 350,
+      "y": 80,
+      "params": {
+        "inputType": "number",
+        "outputType": "number"
+      },
+      "graph": {
+        "version": 1,
+        "name": "Integrador reutilizable",
+        "board": "esp32",
+        "interval": 50,
+        "i2c": {
+          "sda": 21,
+          "scl": 22
+        },
+        "nodes": [
+          {
+            "id": "input",
+            "type": "subInput",
+            "label": "Entrada del subdiagrama",
+            "x": 60,
+            "y": 80,
+            "params": {
+              "kind": "number"
+            }
+          },
+          {
+            "id": "output",
+            "type": "subOutput",
+            "label": "Salida del subdiagrama",
+            "x": 550,
+            "y": 80,
+            "params": {
+              "kind": "number"
+            }
+          },
+          {
+            "id": "integral",
+            "type": "integrator",
+            "label": "Integrador",
+            "x": 260,
+            "y": 80,
+            "params": {
+              "initial": 0,
+              "min": -1000000,
+              "max": 1000000
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "input",
+            "to": "integral",
+            "input": "in"
+          },
+          {
+            "from": "integral",
+            "to": "output",
+            "input": "in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "scope",
+      "type": "chart",
+      "label": "Osciloscopio",
+      "x": 650,
+      "y": 80,
+      "params": {
+        "unit": "V"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "source",
+      "to": "module",
+      "input": "in"
+    },
+    {
+      "from": "module",
+      "to": "scope",
+      "input": "in"
+    }
+  ]
+}

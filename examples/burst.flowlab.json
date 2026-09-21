@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "name": "ADC DMA · captura por lotes",
+  "board": "esp32",
+  "interval": 1000,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "burst",
+      "type": "adcBurst",
+      "label": "ESP32 · ADC ráfaga DMA",
+      "x": 50,
+      "y": 80,
+      "params": {
+        "pin": 32,
+        "rate": 20000,
+        "count": 1024,
+        "trigger": "immediate",
+        "level": 2048,
+        "pre": 0,
+        "timeout": 2000
+      }
+    },
+    {
+      "id": "scope",
+      "type": "waveformChart",
+      "label": "Gráfico de waveform",
+      "x": 350,
+      "y": 60,
+      "params": {}
+    },
+    {
+      "id": "samples",
+      "type": "waveformSamples",
+      "label": "Extraer muestras",
+      "x": 350,
+      "y": 270,
+      "params": {}
+    },
+    {
+      "id": "rms",
+      "type": "vectorStat",
+      "label": "Estadística de vector",
+      "x": 650,
+      "y": 270,
+      "params": {
+        "mode": "rms"
+      }
+    },
+    {
+      "id": "value",
+      "type": "gauge",
+      "label": "Indicador numérico",
+      "x": 950,
+      "y": 270,
+      "params": {
+        "unit": "ADC RMS",
+        "min": 0,
+        "max": 4095
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "burst",
+      "to": "scope",
+      "input": "in"
+    },
+    {
+      "from": "burst",
+      "to": "samples",
+      "input": "in"
+    },
+    {
+      "from": "samples",
+      "to": "rms",
+      "input": "in"
+    },
+    {
+      "from": "rms",
+      "to": "value",
+      "input": "in"
+    }
+  ]
+}

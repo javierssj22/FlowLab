@@ -1,0 +1,23 @@
+name: Build Linux native package
+on:
+  workflow_dispatch:
+jobs:
+  linux-x86_64:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements.txt
+      - run: node --test tests/*.test.mjs
+      - run: python -m unittest discover -s tests -v
+      - run: sh scripts/build-linux.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlowLab-0.2-Linux-x86_64-native
+          path: work/FlowLab-0.2-Linux-x86_64-native.tar.gz
+          if-no-files-found: error

@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "name": "Banco de señales",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "source",
+      "type": "signal",
+      "label": "Señal de entrada",
+      "x": 70,
+      "y": 95,
+      "params": {
+        "wave": "sine",
+        "frequency": 0.4,
+        "amplitude": 1.4,
+        "offset": 1.65,
+        "phase": 0
+      }
+    },
+    {
+      "id": "filter",
+      "type": "filter",
+      "label": "Filtro de señal",
+      "x": 360,
+      "y": 95,
+      "params": {
+        "tau": 0.2
+      }
+    },
+    {
+      "id": "scope",
+      "type": "chart",
+      "label": "Señal filtrada",
+      "x": 650,
+      "y": 65,
+      "params": {
+        "unit": "V"
+      }
+    },
+    {
+      "id": "meter",
+      "type": "gauge",
+      "label": "Voltaje de salida",
+      "x": 650,
+      "y": 235,
+      "params": {
+        "unit": "V",
+        "min": 0,
+        "max": 3.3
+      }
+    },
+    {
+      "id": "limit",
+      "type": "constant",
+      "label": "Umbral · 2,2 V",
+      "x": 360,
+      "y": 335,
+      "params": {
+        "value": 2.2
+      }
+    },
+    {
+      "id": "compare",
+      "type": "compare",
+      "label": "Detección de nivel",
+      "x": 650,
+      "y": 420,
+      "params": {
+        "op": ">"
+      }
+    },
+    {
+      "id": "led",
+      "type": "led",
+      "label": "Alarma de nivel",
+      "x": 940,
+      "y": 420,
+      "params": {}
+    },
+    {
+      "id": "log",
+      "type": "log",
+      "label": "Adquisición de datos",
+      "x": 940,
+      "y": 100,
+      "params": {
+        "unit": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "source",
+      "to": "filter",
+      "input": "in"
+    },
+    {
+      "from": "filter",
+      "to": "scope",
+      "input": "in"
+    },
+    {
+      "from": "filter",
+      "to": "meter",
+      "input": "in"
+    },
+    {
+      "from": "filter",
+      "to": "compare",
+      "input": "a"
+    },
+    {
+      "from": "limit",
+      "to": "compare",
+      "input": "b"
+    },
+    {
+      "from": "compare",
+      "to": "led",
+      "input": "in"
+    },
+    {
+      "from": "filter",
+      "to": "log",
+      "input": "in"
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "name": "Tipos de datos · cables por color",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "decimal",
+      "type": "constant",
+      "label": "Decimal · naranja",
+      "x": 70,
+      "y": 50,
+      "params": {
+        "value": 1.5
+      }
+    },
+    {
+      "id": "decimalDisplay",
+      "type": "gauge",
+      "label": "Indicador decimal",
+      "x": 370,
+      "y": 50,
+      "params": {
+        "unit": "V",
+        "min": 0,
+        "max": 5
+      }
+    },
+    {
+      "id": "integer",
+      "type": "integer",
+      "label": "Entero · azul",
+      "x": 70,
+      "y": 235,
+      "params": {
+        "value": 42
+      }
+    },
+    {
+      "id": "convert",
+      "type": "toText",
+      "label": "Conversión explícita",
+      "x": 370,
+      "y": 235,
+      "params": {}
+    },
+    {
+      "id": "integerDisplay",
+      "type": "textIndicator",
+      "label": "Entero convertido a texto",
+      "x": 670,
+      "y": 235,
+      "params": {}
+    },
+    {
+      "id": "boolean",
+      "type": "toggle",
+      "label": "Booleano · verde",
+      "x": 70,
+      "y": 420,
+      "params": {
+        "value": "1"
+      }
+    },
+    {
+      "id": "boolDisplay",
+      "type": "led",
+      "label": "Indicador booleano",
+      "x": 370,
+      "y": 420,
+      "params": {}
+    },
+    {
+      "id": "text",
+      "type": "text",
+      "label": "Texto · rosa",
+      "x": 70,
+      "y": 605,
+      "params": {
+        "value": "Hola, ESP32"
+      }
+    },
+    {
+      "id": "textDisplay",
+      "type": "textIndicator",
+      "label": "Indicador de texto",
+      "x": 370,
+      "y": 605,
+      "params": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "decimal",
+      "to": "decimalDisplay",
+      "input": "in"
+    },
+    {
+      "from": "integer",
+      "to": "convert",
+      "input": "in"
+    },
+    {
+      "from": "convert",
+      "to": "integerDisplay",
+      "input": "in"
+    },
+    {
+      "from": "boolean",
+      "to": "boolDisplay",
+      "input": "in"
+    },
+    {
+      "from": "text",
+      "to": "textDisplay",
+      "input": "in"
+    }
+  ]
+}
