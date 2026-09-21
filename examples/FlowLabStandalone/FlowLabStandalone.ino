@@ -1,4 +1,4 @@
-// FlowLab 0.2 — standalone export — MIT
+// FlowLab 0.3 — standalone export — MIT
 // Target: esp32. Arduino-ESP32 3.x.
 // Controls are frozen at export time. Instrument output: time_s,node_id,value.
 // Runs continuously after boot; host stop/watchdog is not used in standalone mode.

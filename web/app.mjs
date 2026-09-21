@@ -1,5 +1,6 @@
 import {TYPES, DATA_TYPES, describe, compatible, BOARDS, createNode, validate, hardwareErrors, Runtime, example, parseProject, csv} from './core.mjs';
 import {generateArduino} from './codegen.mjs';
+import {meterReading} from './signals.mjs';
 import {summarize} from './data.mjs';
 import {WebSocketTransport,WebSerialTransport} from './transports.mjs';
 import {ProjectFileStore} from './project-store.mjs';
@@ -11,7 +12,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const token=document.querySelector('meta[name="flowlab-token"]').content;
 let project=example(), selected=null, selectedEdge=-1, pending=null, undo=[], redo=[], tab='diagram';
 let view={x:20,y:100,zoom:.8}, running=false, busy=false, runtime=null, timer=null, tickTask=null;
-let timeValue=0,lastTick=0,values=new Map(),histories=new Map(),rows=[],recording=true,logs=[],connected=false;
+let timeValue=0,lastTick=0,values=new Map(),histories=new Map(),spectra=new Map(),rows=[],recording=true,logs=[],connected=false;
 let backend=null,jobTimer=null,gesture=null,toastTimer=null,dirty=false,operation=false;
 let panelEditing=false,panelPositions=Object.create(null);
 const fileStore=new ProjectFileStore();let transport=null,moduleStack=[];
@@ -131,8 +132,8 @@ function addNode(type){edit(()=>{
   if(project.nodes.length>=200)throw Error('Límite de 200 nodos por proyecto.');
   const rect=$('viewport').getBoundingClientRect();let x=Math.max(20,(rect.width/2-view.x)/view.zoom-102),y=Math.max(20,(rect.height/2-view.y)/view.zoom-56);
   while(project.nodes.some(n=>Math.abs(n.x-x)<25&&Math.abs(n.y-y)<25)){x+=28;y+=28;}
-  const n=createNode(type,newId(),Math.min(5500,x),Math.min(3500,y)),b=BOARDS[project.board];if(['adc','adcBurst'].includes(type))n.params.pin=b.adc[0];if(['digitalRead','digitalWrite','pwm'].includes(type))n.params.pin=b.output;
-  project.nodes.push(n);selected=n.id;selectedEdge=-1;if(tab!=='panel'||!['chart','waveformChart','gauge','led','slider','toggle','log','text','textIndicator'].includes(type))setTab('diagram');
+  const n=createNode(type,newId(),Math.min(5500,x),Math.min(3500,y)),b=BOARDS[project.board];if(['adc','adcBurst'].includes(type))n.params.pin=b.adc[0];if(['digitalRead','digitalWrite','pwm','tone','pcnt'].includes(type))n.params.pin=b.output;if(type==='dac'&&b.dac.length)n.params.pin=b.dac[0];if(type==='touch'&&b.touch.length)n.params.pin=b.touch[0];
+  project.nodes.push(n);selected=n.id;selectedEdge=-1;if(tab!=='panel'||!['chart','waveformChart','fft','xyChart','multimeter','gauge','led','slider','toggle','log','text','textIndicator'].includes(type))setTab('diagram');
 });}
 function deleteSelection(){edit(()=>{if(selected){project.nodes=project.nodes.filter(n=>n.id!==selected);project.edges=project.edges.filter(e=>e.from!==selected&&e.to!==selected);if(project.panel)delete project.panel[selected];}else if(selectedEdge>=0)project.edges.splice(selectedEdge,1);selected=null;selectedEdge=-1;});}
 function fit(){
@@ -147,7 +148,7 @@ function zoom(factor,cx=$('viewport').clientWidth/2,cy=$('viewport').clientHeigh
 function setTab(next){tab=next;for(const t of ['diagram','panel','devices'])$(`${t}-view`).hidden=t!==next;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===next));if(next==='devices')refreshHardware().catch(error);if(next==='panel')requestAnimationFrame(updateLive);}
 function download(name,text,type='application/json'){const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 const safeName=()=>project.name.replace(/[^a-z0-9áéíóúñ_-]/gi,'_').slice(0,80)||'FlowLab';
-function resetData(){histories=new Map();rows=[];values=new Map();timeValue=0;updateLive();}
+function resetData(){histories=new Map();spectra=new Map();rows=[];values=new Map();timeValue=0;updateLive();}
 function updateControls(){
   $('run').disabled=running||busy||operation||Boolean(jobTimer)||Boolean(moduleStack.length);$('step').disabled=running||busy||operation||Boolean(jobTimer)||Boolean(moduleStack.length);$('stop').disabled=!running&&!runtime&&!busy;
   $('edit-panel').disabled=running||busy||operation;$('reset-panel').disabled=running||busy||operation;
@@ -176,7 +177,7 @@ async function performTick(single=false){
     const result=await current.tick(timeValue,dt);if(current.cancelled)return;
     values=result;
     for(const n of project.nodes){
-      const value=values.get(n.id);if(value?.kind==='waveform')histories.set(n.id,value.samples.map((v,i)=>({t:value.t0+i*value.dt,v})));else if(typeof value==='number') {let h=histories.get(n.id)||[];h.push({t:timeValue,v:value});if(h.length>600)h.shift();histories.set(n.id,h);}
+      const value=values.get(n.id);if(n.type==='fft'){const spectrum=runtime.state.get(n.id);spectra.set(n.id,spectrum);histories.set(n.id,spectrum.magnitudes.map((v,i)=>({t:spectrum.f0+i*spectrum.df,v})));}else if(n.type==='xyChart'){histories.set(n.id,[...runtime.state.get(n.id)]);}else if(value?.kind==='waveform')histories.set(n.id,value.samples.map((v,i)=>({t:value.t0+i*value.dt,v})));else if(typeof value==='number') {let h=histories.get(n.id)||[];h.push({t:timeValue,v:value});if(h.length>600)h.shift();histories.set(n.id,h);}
       if(recording&&n.type==='log'){rows.push([Number(timeValue.toFixed(6)),n.id,n.label,value,n.params.unit]);if(rows.length>20000)rows.shift();}
     }
     timeValue+=dt;
@@ -206,15 +207,15 @@ async function stop(){
   runtime=null;busy=false;updateControls();renderInspector();renderWires();log('Ejecución detenida.');
 }
 function renderPanel(){
-  const nodes=project.nodes.filter(n=>['chart','waveformChart','gauge','led','slider','toggle','log','text','textIndicator'].includes(n.type));
+  const nodes=project.nodes.filter(n=>['chart','waveformChart','fft','xyChart','multimeter','gauge','led','slider','toggle','log','text','textIndicator'].includes(n.type));
   const manual=Boolean(project.panel)||panelEditing;
   const stageWidth=Math.min(1400,Math.max(480,$('panel-view').clientWidth-56)),tileWidth=Math.floor((stageWidth-16)/2);let rowY=0,column=0;
   panelPositions=Object.create(null);
   for(const n of nodes){
-    if(['chart','waveformChart'].includes(n.type)&&column){rowY+=196;column=0;}
-    const defaultPos={x:column*(tileWidth+16),y:rowY,w:['chart','waveformChart'].includes(n.type)?stageWidth:tileWidth,h:['chart','waveformChart'].includes(n.type)?260:180};
+    if(['chart','waveformChart','fft','xyChart'].includes(n.type)&&column){rowY+=196;column=0;}
+    const defaultPos={x:column*(tileWidth+16),y:rowY,w:['chart','waveformChart','fft','xyChart'].includes(n.type)?stageWidth:tileWidth,h:['chart','waveformChart','fft','xyChart'].includes(n.type)?260:180};
     panelPositions[n.id]=project.panel&&Object.hasOwn(project.panel,n.id)?project.panel[n.id]:defaultPos;
-    if(['chart','waveformChart'].includes(n.type)){rowY+=276;}else if(column===1){rowY+=196;column=0;}else column=1;
+    if(['chart','waveformChart','fft','xyChart'].includes(n.type)){rowY+=276;}else if(column===1){rowY+=196;column=0;}else column=1;
   }
   $('edit-panel').textContent=panelEditing?'✓ Terminar edición':'✎ Editar panel';
   $('panel-edit-hint').textContent=panelEditing?'Arrastra el título para mover; usa la esquina inferior para dimensionar.':'Cada control e indicador tiene su bloque en el diagrama.';
@@ -223,8 +224,11 @@ function renderPanel(){
   else{$('instruments').style.height='';$('instruments').style.minWidth='';}
   $('instruments').innerHTML=nodes.map(n=>{
     const d=describe(n),p=n.params;let body='';
-    if(['chart','waveformChart'].includes(n.type))body=`<canvas data-scope="${n.id}" aria-label="${esc(n.label)}"></canvas>`;
+    if(['chart','waveformChart','fft','xyChart'].includes(n.type))body=`<canvas data-scope="${n.id}" aria-label="${esc(n.label)}"></canvas>`;
     if(n.type==='gauge'||n.type==='log')body=`<span class="reading" data-reading="${n.id}">—</span><span class="unit">${esc(p.unit)}</span>${n.type==='gauge'?`<div class="gauge-track"><div class="gauge-fill" data-gauge="${n.id}"></div></div><div class="range-labels"><span>${p.min}</span><span>${p.max}</span></div>`:'<p class="small muted">Registro CSV · últimas 20.000 filas de la sesión</p>'}`;
+    if(n.type==='multimeter')body=`<div class="multimeter-face" data-meter="${n.id}">—</div><p class="small muted">Rango ±${esc(p.range)} ${esc(p.unit)} · indicador del valor conectado</p>`;
+    if(n.type==='fft')body+=`<p class="small muted" data-spectrum="${n.id}">FFT · eje X en Hz</p>`;
+    if(n.type==='xyChart')body+=`<p class="small muted">X: ${esc(p.xUnit)} · Y: ${esc(p.yUnit)} · ${p.points} puntos máx.</p>`;
     if(n.type==='led')body=`<span class="lamp" data-lamp="${n.id}"></span><span data-reading="${n.id}">—</span>`;
     if(n.type==='slider')body=`<span class="reading" data-control-reading="${n.id}">${fmt(p.value)}</span><input type="range" data-slider="${n.id}" min="${p.min}" max="${p.max}" step="${(p.max-p.min)/1000}" value="${p.value}" aria-label="${esc(n.label)}"><div class="range-labels"><span>${p.min}</span><span>${p.max}</span></div>`;
     if(n.type==='toggle')body=`<button data-toggle="${n.id}" class="toggle-control ${p.value==='1'?'on':''}" aria-label="${esc(n.label)}" aria-pressed="${p.value==='1'}">${p.value==='1'?'ON':'OFF'}</button>`;
@@ -249,7 +253,7 @@ function renderPanel(){
   });
   requestAnimationFrame(updateLive);
 }
-function drawChart(canvas,series,color='#f3ab69'){
+function drawChart(canvas,series,color='#f3ab69',xUnit='s',xy=false){
   const rect=canvas.getBoundingClientRect();if(!rect.width||!rect.height)return;const ratio=Math.min(devicePixelRatio||1,2);
   if(canvas.width!==Math.round(rect.width*ratio)||canvas.height!==Math.round(rect.height*ratio)){canvas.width=Math.round(rect.width*ratio);canvas.height=Math.round(rect.height*ratio);}
   const ctx=canvas.getContext('2d'),w=rect.width,h=rect.height;ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,w,h);
@@ -260,20 +264,23 @@ function drawChart(canvas,series,color='#f3ab69'){
   for(let i=0;i<=4;i++){const y=top+(bottom-top)*i/4;ctx.strokeStyle='#2b333e';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();ctx.fillStyle='#69788b';ctx.fillText(fmt(max-(max-min)*i/4),left-9,y+3);}
   for(let i=0;i<=8;i++){const x=left+(right-left)*i/8;ctx.strokeStyle='#242c36';ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);ctx.stroke();}
   if(!series.length){ctx.textAlign='center';ctx.fillStyle='#607084';ctx.fillText('EJECUTA EL DIAGRAMA PARA VER LA SEÑAL',w/2,h/2);return;}
-  const start=series[0].t,end=Math.max(start+1e-9,series.at(-1).t);
+  let start=xy?Math.min(...series.map(p=>p.t)):series[0].t,end=xy?Math.max(...series.map(p=>p.t)):series.at(-1).t;if(end-start<1e-9){start-=.5;end+=.5;}
   ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.beginPath();series.forEach((p,i)=>{const x=left+(p.t-start)/(end-start)*(right-left),y=bottom-(p.v-min)/(max-min)*(bottom-top);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();
-  ctx.fillStyle='#69788b';ctx.textAlign='left';ctx.fillText(`${start.toPrecision(4)} s`,left,h-7);ctx.textAlign='right';ctx.fillText(`${end.toPrecision(4)} s`,right,h-7);
+  ctx.fillStyle='#69788b';ctx.textAlign='left';ctx.fillText(`${start.toPrecision(4)} ${xUnit}`,left,h-7);ctx.textAlign='right';ctx.fillText(`${end.toPrecision(4)} ${xUnit}`,right,h-7);
 }
+function drawNodeChart(canvas,n){drawChart(canvas,histories.get(n?.id)||[],n?.type==='fft'?'#b594f6':n?.type==='xyChart'?'#76d8b2':'#66d2df',n?.type==='fft'?'Hz':n?.type==='xyChart'?n.params.xUnit:'s',n?.type==='xyChart');}
 function updateLive(){
+  document.querySelectorAll('[data-meter]').forEach(el=>{const n=project.nodes.find(n=>n.id===el.dataset.meter);if(!n)return;const reading=meterReading(values.get(n.id),n.params);el.textContent=reading.text+' '+reading.unit;el.classList.toggle('over-range',reading.over);});
+  document.querySelectorAll('[data-spectrum]').forEach(el=>{const s=spectra.get(el.dataset.spectrum);if(s)el.textContent=`Δf ${fmt(s.df)} Hz · ${s.n} muestras · ${s.window} · ${s.unit}`;});
   document.querySelectorAll('[data-value]').forEach(el=>{const n=project.nodes.find(n=>n.id===el.dataset.value);if(n)el.textContent=nodeValue(n);});
   if($('inspector-value'))$('inspector-value').textContent=fmt(values.get(selected));
   document.querySelectorAll('[data-reading]').forEach(el=>el.textContent=fmt(values.get(el.dataset.reading)));
   document.querySelectorAll('[data-lamp]').forEach(el=>el.classList.toggle('on',Boolean(values.get(el.dataset.lamp))));
   document.querySelectorAll('[data-gauge]').forEach(el=>{const n=project.nodes.find(n=>n.id===el.dataset.gauge);if(!n){el.style.width='0';return;}const v=values.get(n.id);el.style.width=Number.isFinite(v)?Math.max(0,Math.min(100,100*(v-n.params.min)/(n.params.max-n.params.min)))+'%':'0';});
-  if(tab==='panel')document.querySelectorAll('[data-scope]').forEach(el=>drawChart(el,histories.get(el.dataset.scope)||[],values.get(el.dataset.scope)?.kind==='waveform'?'#66d2df':'#f3ab69'));
-  const source=project.nodes.find(n=>n.id===selected&&['number','integer','waveform'].includes(describe(n).output))||project.nodes.find(n=>['chart','waveformChart'].includes(n.type))||project.nodes.find(n=>['number','integer','waveform'].includes(describe(n).output));
-  const series=histories.get(source?.id)||[];drawChart($('monitor-chart'),series,values.get(source?.id)?.kind==='waveform'?'#66d2df':'#f3ab69');$('monitor-source').textContent=source?.label||'Sin muestras';
-  const shown=values.get(source?.id);$('last-value').textContent=fmt(shown?.kind==='waveform'?shown.samples.at(-1):shown);$('min-value').textContent=series.length?fmt(Math.min(...series.map(p=>p.v))):'—';$('max-value').textContent=series.length?fmt(Math.max(...series.map(p=>p.v))):'—';
+  if(tab==='panel')document.querySelectorAll('[data-scope]').forEach(el=>drawNodeChart(el,project.nodes.find(n=>n.id===el.dataset.scope)));
+  const source=project.nodes.find(n=>n.id===selected&&(['number','integer','waveform'].includes(describe(n).output)||n.type==='fft'))||project.nodes.find(n=>['chart','waveformChart','fft','xyChart'].includes(n.type))||project.nodes.find(n=>['number','integer','waveform'].includes(describe(n).output));
+  const series=histories.get(source?.id)||[];drawNodeChart($('monitor-chart'),source);$('monitor-source').textContent=source?.label||'Sin muestras';
+  const shown=values.get(source?.id);$('last-value').textContent=source?.type==='fft'&&series.length?fmt(Math.max(...series.map(p=>p.v))):fmt(shown?.kind==='waveform'?shown.samples.at(-1):shown);$('min-value').textContent=series.length?fmt(Math.min(...series.map(p=>p.v))):'—';$('max-value').textContent=series.length?fmt(Math.max(...series.map(p=>p.v))):'—';
   $('sample-count').textContent=`${series.length} muestras · ${runtime?.samples??0} ciclos · ${rows.length} registros`;
 }
 async function refreshHardware(){
@@ -351,6 +358,7 @@ action('open',async()=>{
 });
 $('file-input').onchange=async()=>{try{const file=$('file-input').files[0];if(!file)return;if(file.size>1e6)throw Error('El archivo supera 1 MB.');loadProject(parseProject(await file.text()));dirty=false;$('saved').textContent='Archivo importado';}catch(e){error(e);}finally{$('file-input').value='';}};
 action('recover-local',()=>{if(!editable())return;const old=localStorage.getItem('flowlab.project.v1');if(!old)throw Error('No hay un proyecto de la versión 0.1 en este navegador.');loadProject(parseProject(old));toast('Proyecto anterior recuperado. Guárdalo en un archivo propio.');});
+action('spectrum-json',()=>{const s=spectra.get(selected)||spectra.values().next().value;if(!s)throw Error('Ejecuta un bloque FFT primero.');download(safeName()+'.spectrum.json',JSON.stringify(s,null,2));});
 action('waveform-json',()=>{const v=values.get(selected)?.kind==='waveform'?values.get(selected):[...values.values()].find(v=>v?.kind==='waveform');if(!v)throw Error('Ejecuta una captura o construye una waveform.');download(safeName()+'.waveform.json',JSON.stringify(v,null,2));});
 action('undo',()=>{if(!editable()||!undo.length)return;redo.push(snapshot());project=JSON.parse(undo.pop());selected=null;selectedEdge=-1;changed();});
 action('redo',()=>{if(!editable()||!redo.length)return;undo.push(snapshot());project=JSON.parse(redo.pop());selected=null;selectedEdge=-1;changed();});

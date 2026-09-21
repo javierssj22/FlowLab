@@ -22,7 +22,7 @@ test('all bundled projects execute for every board, with valid hardware pin prof
   }
 });
 test('every original scalar node evaluates and has an explicit export implementation',async()=>{
-  for(const [type,def] of Object.entries(TYPES).filter(([type])=>!['vector','makeWaveform','waveformSamples','waveformScale','vectorStat','vectorAt','waveformChart','adcBurst','i2cTransfer','subvi','subInput','subOutput'].includes(type))) {
+  for(const [type,def] of Object.entries(TYPES).filter(([type])=>!['fft','waveformStats','unpackInt16','bitwise','dac','pcnt','touch','tone','xyChart','multimeter','vector','makeWaveform','waveformSamples','waveformScale','vectorStat','vectorAt','waveformChart','adcBurst','i2cTransfer','subvi','subInput','subOutput'].includes(type))) {
     const inputs=Object.fromEntries(def.inputs.map(p=>[p.name,p.type==='string'?'texto':p.type==='boolean'?true:2]));
     const p=fixture(type,inputs),out=await new Runtime(p).tick(.25,.05);
     assert.equal(typeof out.get('target'),def.output==='integer'?'number':def.output,type);assert.ok(generateArduino(p).includes('// '+type),type);
@@ -184,7 +184,7 @@ test('logic conversion, UTF8 length and text export handle actual types',async()
   assert.equal(await result('or',{a:false,b:true}),true);assert.equal(await result('xor',{a:true,b:true}),false);
   assert.equal(await result('boolToNumber',{in:true}),1);assert.equal(await result('length',{in:'ñ🙂'}),6);
   const p=example('types'),source=generateArduino(p);assert.match(source,/String\(\(double\)v\d+,6\)/);
-  assert.equal(Object.keys(TYPES).length,70);
+  assert.equal(Object.keys(TYPES).length,80);
 });
 test('Arduino export promotes integer inputs before arithmetic to avoid truncation and overflow',async()=>{
   const p=fixture('divide',{a:7,b:2});p.nodes[1].type='integer';p.nodes[2].type='integer';

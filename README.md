@@ -1,23 +1,25 @@
-# FlowLab 0.2 — laboratorio visual abierto
+# FlowLab 0.3 — laboratorio visual abierto
 
-FlowLab permite construir y ejecutar diagramas de flujo de datos, observar señales y controlar un ESP32. Está pensado para Windows y funciona localmente, sin cuenta ni nube. Licencia MIT, código completo y firmware incluidos.
+FlowLab permite construir y ejecutar diagramas de flujo de datos, observar señales y controlar un ESP32. Está pensado para Windows y Linux y funciona localmente, sin cuenta ni nube. Licencia MIT, código completo y firmware incluidos.
 
 **Esta entrega es una primera versión funcional, no una equivalencia completa con LabVIEW.** Incluye un motor, editor e integración serie reales. No abre archivos `.vi`, no emula los controladores NI y no ofrece tiempo real determinista. El apartado de alcance al final distingue lo implementado de lo pendiente.
 
-**Arquitectura 0.2:** WebSocket, captura ADC DMA con trigger, Vector/Waveform, subdiagramas, archivos de proyecto, I²C multibyte y WebSerial directo. La explicación técnica y los límites están en [docs/ARQUITECTURA-0.2.md](docs/ARQUITECTURA-0.2.md).
+**Nuevo en 0.3:** 80 tipos de bloque; FFT, Waveform Stats, Unpack Int16, Bitwise Ops, DAC, PCNT, Touch, Tone, Gráfica XY y Display multímetro. Incluye cuatro ejemplos nuevos y mantiene Vector Index compatible. Consulta [la guía 0.3](docs/PAQUETE-0.3.md) para uso, familias, protocolo 3 y límites.
+
+**Arquitectura base 0.2:** WebSocket, captura ADC DMA con trigger, Vector/Waveform, subdiagramas, archivos de proyecto, I²C multibyte y WebSerial directo. La explicación técnica y los límites están en [docs/ARQUITECTURA-0.2.md](docs/ARQUITECTURA-0.2.md).
 
 <img width="1533" height="696" alt="image" src="https://github.com/user-attachments/assets/b3df6344-da90-4781-8f01-ca82b9e209f8" />
 
 
 ## Linux
 
-Descarga `FlowLab-0.2-Linux.tar.gz`, extrae y ejecuta `sh instalar-linux.sh`, luego `sh start.sh`. Necesita Python 3.10+ con venv; los paquetes Python están incluidos para instalación offline. Incluye el mismo editor y soporte ESP32. Consulta [la guía Linux](docs/LINUX.md) para permisos USB, WebSerial y construcción del ejecutable nativo. Esta entrega Linux se distribuye como aplicación Python, no como ELF precompilado.
+Descarga `FlowLab-0.3-Linux.tar.gz`, extrae y ejecuta `sh instalar-linux.sh`, luego `sh start.sh`. Necesita Python 3.10+ con venv; los paquetes Python están incluidos para instalación offline. Incluye el mismo editor y soporte ESP32. Consulta [la guía Linux](docs/LINUX.md) para permisos USB, WebSerial y construcción del ejecutable nativo. Esta entrega Linux se distribuye como aplicación Python, no como ELF precompilado.
 
 ## Inicio rápido en Windows
 
 ### Paquete portable
 
-1. Extrae **todo** el ZIP `FlowLab-0.2-Windows.zip` en una carpeta con permisos de escritura.
+1. Extrae **todo** el ZIP `FlowLab-0.3-Windows.zip` en una carpeta con permisos de escritura.
 2. Dentro de `FlowLab`, ejecuta `FlowLab.exe`. Conserva `_internal` junto al ejecutable.
 3. Se abre el navegador en `http://127.0.0.1:8765`.
 4. Pulsa **Ejecutar** en el ejemplo Banco de señales. Abre **Panel frontal** para ver los instrumentos.

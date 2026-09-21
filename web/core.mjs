@@ -1,16 +1,27 @@
 // SPDX-License-Identifier: MIT
 import {vector,waveform,checkWaveform,parseVector,bytes} from './data.mjs';
+import {fft,waveformStats,unpackInt16,bitwise} from './signals.mjs';
 const num = (label, value, min = -1e9, max = 1e9, step = 'any') => ({label, value, min, max, step, type: 'number'});
 const opt = (label, value, options) => ({label, value, options, type: 'select'});
 const input = (name, type = 'number') => ({name, type});
 const def = (label, group, icon, inputs, output, params, description) => ({label, group, icon, inputs: inputs.map(x => typeof x === 'string' ? input(x) : x), output, params, description});
 export const TYPES = {
+  fft: def('FFT · espectro','Señales','FFT',[input('in','waveform')],'vector',{window:opt('Ventana','hann',['hann','rectangular']),removeMean:opt('Eliminar DC','yes',['yes','no']),scale:opt('Escala','amplitude',['amplitude','dB']),reference:num('Referencia dB',1,1e-12,1e12)},'FFT radix-2 de 16–4096 muestras. Espectro unilateral de amplitud pico; el panel usa Hz. Salida vector para Vector Index.'),
+  waveformStats: def('Waveform Stats','Señales','ΣY',[input('in','waveform')],'number',{mode:opt('Estadística','rms',['mean','rms','acRms','stddev','min','max','peakToPeak'])},'Estadística de todas las muestras; RMS total o componente AC, desviación poblacional y pico a pico.'),
+  unpackInt16: def('Unpack Int16','Protocolos','i16',[input('in','vector')],'integer',{offset:num('Offset de byte',0,0,30,1),endian:opt('Orden de bytes','big',['big','little']),signed:opt('Con signo','yes',['yes','no'])},'Decodifica dos bytes I²C como Int16 o UInt16, con offset y endianness explícitos.'),
+  bitwise: def('Bitwise Ops','Protocolos','&|',[input('a','integer'),input('b','integer')],'integer',{op:opt('Operación','and',['and','or','xor','not','shl','shr'])},'Operaciones I32 a nivel de bits. NOT ignora b; conecta 0. Desplazamientos de 0–31 bits; SHR conserva signo.'),
+  dac: def('ESP32 · DAC','ESP32','D/A',['in'],'integer',{pin:num('GPIO DAC',25,0,54,1)},'Salida DAC nativa 8-bit: redondea y limita a 0–255. Solo ESP32/S2; STOP deshabilita el DAC y lleva GPIO a LOW.'),
+  pcnt: def('ESP32 · PCNT tacómetro','ESP32','RPM',[],'number',{pin:num('GPIO de pulsos',27,0,54,1),gateMs:num('Ventana · ms',100,10,1000,1),ppr:num('Pulsos por vuelta',1,1,10000,1),mode:opt('Salida','rpm',['rpm','Hz']),filterNs:num('Filtro de glitches · ns (0 = sin filtro)',0,0,10000,1)},'Cuenta flancos ascendentes con PCNT durante una ventana finita y calcula Hz/RPM. No disponible en ESP32-C3; hay huecos entre ventanas.'),
+  touch: def('ESP32 · Touch','ESP32','✋',[],'number',{pin:num('GPIO táctil',4,0,54,1)},'Lectura capacitiva cruda, no un booleano ni una capacitancia calibrada. ESP32/S2/S3; la dirección del cambio depende de la familia.'),
+  tone: def('ESP32 · Tone','ESP32','♪',['in'],'number',{pin:num('GPIO de salida',25,0,54,1)},'Tono cuadrado LEDC al 50 %. Entrada 20–20000 Hz, 0 apaga. Un Tone por grafo y sin PWM simultáneo para evitar temporizadores compartidos.'),
+  xyChart: def('Gráfica XY','Instrumentos','XY',['x','y'],'number',{xUnit:{type:'text',label:'Unidad X',value:'V'},yUnit:{type:'text',label:'Unidad Y',value:'mA'},points:num('Puntos conservados',600,16,4096,1)},'Grafica pares (x,y) en orden de adquisición, incluso X decreciente. Conserva hasta N pares; salida y.'),
+  multimeter: def('Display multímetro','Instrumentos','DMM',['in'],'number',{unit:{type:'text',label:'Unidad física',value:'V'},digits:num('Decimales',4,0,6,1),range:num('Rango absoluto en unidad base',1000,1e-12,1e12),prefix:opt('Prefijo SI','auto',['auto','fixed'])},'Indicador con prefijos SI, signo y OL fuera de rango. Muestra la magnitud recibida; no mide corriente/resistencia sin el circuito y conversión adecuados.'),
   vector: def('Vector numérico','Lotes','[ ]',[],'vector',{values:{type:'text',label:'Arreglo JSON',value:'[1,2,3,4]',maxLength:20000}},'Arreglo de hasta 4096 números finitos.'),
   makeWaveform: def('Construir waveform','Lotes','Y(dt)',[input('in','vector')],'waveform',{dt:num('dt · segundos',0.001,0.000000001,86400),t0:num('t0 · segundos',0)},'Agrega un intervalo de muestreo uniforme y origen temporal al vector.'),
   waveformSamples: def('Extraer muestras','Lotes','Y[]',[input('in','waveform')],'vector',{},'Extrae las muestras de una waveform.'),
   waveformScale: def('Escalar waveform','Lotes','Y×k',[input('in','waveform')],'waveform',{gain:num('Ganancia',1),offset:num('Offset',0)},'Escala todas las muestras preservando dt, t0 y metadatos.'),
   vectorStat: def('Estadística de vector','Lotes','Σ[]',[input('in','vector')],'number',{mode:opt('Operación','mean',['mean','rms','min','max'])},'Procesa el bloque completo; rechaza vectores vacíos.'),
-  vectorAt: def('Índice de vector','Lotes','[i]',[input('in','vector')],'number',{index:num('Índice',0,0,4095,1)},'Lee un elemento; falla si está fuera del vector.'),
+  vectorAt: def('Vector Index · Índice de vector','Lotes','[i]',[input('in','vector')],'number',{index:num('Índice',0,0,4095,1)},'Lee un elemento desde índice cero; falla si está fuera del vector. Compatible con proyectos 0.2.'),
   waveformChart: def('Gráfico de waveform','Instrumentos','⌁[]',[input('in','waveform')],'waveform',{},'Representa el lote completo con el eje temporal definido por dt y t0.'),
   adcBurst: def('ESP32 · ADC ráfaga DMA','ESP32','A[]',[],'waveform',{pin:num('GPIO ADC1',34,0,54,1),rate:num('Muestreo nominal · Hz',20000,20000,80000,1),count:num('Muestras',1024,16,4096,1),trigger:opt('Disparo','immediate',['immediate','rising','falling']),level:num('Nivel ADC del disparo',2048,0,4095,1),pre:num('Muestras antes del disparo',0,0,4095,1),timeout:num('Timeout · ms',2000,100,5000,1)},'Captura en DMA y luego transfiere; protocolo 2. Sin salidas activas. Tasa pendiente de caracterizar en hardware.'),
   i2cTransfer: def('ESP32 · I²C multibyte','ESP32','I[]',[input('tx','vector')],'vector',{address:num('Dirección decimal',72,8,119,1),readCount:num('Bytes a leer',2,0,32,1),stop:opt('Entre escritura y lectura','repeated-start',['repeated-start','stop'])},'Escribe hasta 32 bytes y lee hasta 32 en una transacción; vector vacío permite lectura directa.'),
@@ -93,6 +104,11 @@ export const BOARDS = {
   esp32c3: {name:'ESP32-C3', fqbn:'esp32:esp32:esp32c3', gpio:[0,1,3,4,5,6,7,10], adc:[0,1,3,4],inputOnly:[],sda:6,scl:7,output:5},
   esp32c6: {name:'ESP32-C6', fqbn:'esp32:esp32:esp32c6', gpio:[0,1,2,3,4,5,6,7,10,11,18,19,20,21,22,23], adc:[0,1,2,3,4,5,6],inputOnly:[],sda:6,scl:7,output:5}
 };
+Object.assign(BOARDS.esp32,{dac:[25,26],touch:[4,13,14,27,32,33],pcnt:true});
+Object.assign(BOARDS.esp32s2,{dac:[17,18],touch:[1,2,3,4,5,6,7,8,9,10,11,12,13,14],pcnt:true});
+Object.assign(BOARDS.esp32s3,{dac:[],touch:[1,2,4,5,6,7,8,9,10,11,12,13,14],pcnt:true});
+Object.assign(BOARDS.esp32c3,{dac:[],touch:[],pcnt:false});
+Object.assign(BOARDS.esp32c6,{dac:[],touch:[],pcnt:true});
 Object.setPrototypeOf(TYPES,null);
 Object.setPrototypeOf(BOARDS,null);
 export function createNode(type,id,x=100,y=100) {
@@ -162,13 +178,17 @@ export function hardwareErrors(project) {
   project={...project,nodes:collect(project.nodes)};
   const b=BOARDS[project.board], errors=[]; if(!b) return ['Placa desconocida.'];
   const bursts=project.nodes.filter(n=>n.type==='adcBurst');
-  if(bursts.length>1||bursts.length&&project.nodes.some(n=>['adc','pwm','digitalWrite','i2cWrite','i2cTransfer'].includes(n.type)))errors.push('La adquisición DMA requiere un grafo sin otras operaciones ADC ni salidas/I²C multibyte.');
+  if(bursts.length>1||bursts.length&&project.nodes.some(n=>['adc','pwm','digitalWrite','dac','tone','i2cWrite','i2cTransfer'].includes(n.type)))errors.push('La adquisición DMA requiere un grafo sin otras operaciones ADC ni salidas/I²C multibyte.');
+  const tones=project.nodes.filter(n=>n.type==='tone');
+  if(tones.length>1||tones.length&&project.nodes.some(n=>n.type==='pwm'))errors.push('Tone admite una instancia y no comparte grafo con PWM: LEDC puede compartir temporizadores.');
   const claims=new Map();
   for(const n of project.nodes) {
-    if(!['adc','adcBurst','digitalRead','digitalWrite','pwm'].includes(n.type)) continue;
+    if(!['adc','adcBurst','digitalRead','digitalWrite','pwm','dac','pcnt','touch','tone'].includes(n.type)) continue;
     const p=n.params.pin;
     if(!b.gpio.includes(p) || (['adc','adcBurst'].includes(n.type)&&!b.adc.includes(p))) errors.push(`${n.label}: GPIO ${p} no permitido para esta función en ${b.name}.`);
-    if(['digitalWrite','pwm'].includes(n.type) && b.inputOnly.includes(p)) errors.push(`GPIO ${p} es solamente entrada.`);
+    if(['digitalWrite','pwm','dac','tone'].includes(n.type) && b.inputOnly.includes(p)) errors.push(`GPIO ${p} es solamente entrada.`);
+    if(['dac','touch'].includes(n.type)&&!b[n.type].includes(p))errors.push(`${n.label}: ${n.type.toUpperCase()} no disponible en GPIO ${p} de ${b.name}.`);
+    if(n.type==='pcnt'&&!b.pcnt)errors.push(`${b.name} no tiene periférico PCNT en este perfil.`);
     if(n.type==='digitalRead' && b.inputOnly.includes(p) && n.params.pull!=='none') errors.push(`GPIO ${p} no tiene pull-up/down interno.`);
     if(claims.has(p)) errors.push(`GPIO ${p} está asignado a más de un nodo. Use una salida con varias conexiones.`);
     claims.set(p,n.type);
@@ -210,6 +230,16 @@ export class Runtime {
       const p=n.params, v=Object.fromEntries(Object.entries(this.inputs.get(n.id)).map(([k,id])=>[k,values.get(id)]));
       let out, state=this.state.get(n.id);
       switch(n.type) {
+        case 'fft':{const spectrum=fft(v.in,p);this.state.set(n.id,spectrum);out=spectrum.magnitudes;break;}
+        case 'waveformStats':out=waveformStats(v.in,p.mode);break;
+        case 'unpackInt16':out=unpackInt16(v.in,p.offset,p.endian,p.signed);break;
+        case 'bitwise':out=bitwise(v.a,v.b,p.op);break;
+        case 'xyChart':{state??=[];state.push({t:v.x,v:v.y});if(state.length>p.points)state.shift();this.state.set(n.id,state);out=v.y;break;}
+        case 'multimeter':out=v.in;break;
+        case 'dac':out=Math.round(Math.max(0,Math.min(255,v.in)));if(this.hardware)await this.hardware('dac',{pin:p.pin,value:out});break;
+        case 'touch':out=this.hardware?await this.hardware('touch',{pin:p.pin}):Math.round(1000+200*Math.sin(t));break;
+        case 'tone':{const frequency=Math.round(v.in);if(frequency!==0&&(frequency<20||frequency>20000))throw Error('Tone: frecuencia 20–20000 Hz o 0 para apagar.');out=this.hardware?await this.hardware('tone',{pin:p.pin,frequency}):frequency;break;}
+        case 'pcnt':{const hz=this.hardware?await this.hardware('pcnt',{pin:p.pin,gateMs:p.gateMs,filterNs:p.filterNs}):20+5*Math.sin(t);out=p.mode==='rpm'?hz*60/p.ppr:hz;break;}
         case 'subInput':if(externalInput===undefined)throw Error('Entrada de subdiagrama sin contexto.');out=externalInput;break;
         case 'subOutput':out=v.in;break;
         case 'subvi':{const child=this.children.get(n.id);const outputs=await child.tick(t,dt,v.in);out=outputs.get(n.graph.nodes.find(x=>x.type==='subOutput').id);break;}
@@ -326,6 +356,30 @@ export function example(kind='signal',board='esp32') {
     graph.nodes.push(createNode('integrator','integral',260,80));graph.nodes.find(n=>n.type==='subOutput').x=550;graph.edges=[{from:'input',to:'integral',input:'in'},{from:'integral',to:'output',input:'in'}];
   } else if(kind==='i2cframe') {
     p.name='I²C · registro y lectura de seis bytes';node('vector','register',50,80,{values:'[0]'});node('i2cTransfer','sensor',350,80,{readCount:6});node('vectorAt','byte',650,80);node('gauge','value',950,80,{unit:'byte',max:255});edge('register','sensor','tx');edge('sensor','byte');edge('byte','value');
+  } else if(kind==='spectrum') {
+    p.name='FFT · espectro y RMS de una captura DMA';p.interval=1000;
+    node('adcBurst','burst',50,80,{pin:b.adc[0],count:1024});node('fft','spectrum',360,80);
+    node('waveformStats','stats',360,290,{mode:'acRms'});node('multimeter','meter',670,290,{unit:'ADC',range:4095,prefix:'fixed'});
+    node('waveformChart','scope',360,490);node('vectorAt','bin',670,80,{index:51},'Bin 51 · 996,09 Hz a 20 kSa/s');
+    edge('burst','spectrum');edge('burst','stats');edge('stats','meter');edge('burst','scope');edge('spectrum','bin');
+  } else if(kind==='sensor16') {
+    p.name='Trama Int16 · −100 cuentas = −1 °C (ejemplo)';
+    node('vector','frame',40,80,{values:'[255,156]'},'Trama de ejemplo · FF 9C');node('unpackInt16','word',330,80);
+    node('constant','factor',330,270,{value:.01},'Escala del sensor · ejemplo');node('multiply','scale',620,80);node('multimeter','meter',910,80,{unit:'°C',prefix:'fixed'});
+    node('integer','mask',330,470,{value:255});node('bitwise','bits',620,380,{op:'and'},'Byte menos significativo');node('gauge','byte',910,380,{unit:'byte',max:255});
+    edge('frame','word');edge('word','scale','a');edge('factor','scale','b');edge('scale','meter');edge('word','bits','a');edge('mask','bits','b');edge('bits','byte');
+  } else if(kind==='xy') {
+    p.name='Curva XY · Lissajous';
+    node('signal','x',50,80,{frequency:.2,amplitude:2,offset:0});node('signal','y',50,280,{frequency:.2,phase:Math.PI/2,amplitude:1,offset:0});
+    node('xyChart','curve',370,80,{xUnit:'V',yUnit:'V'});node('multimeter','meter',680,80,{unit:'V',range:5});
+    edge('x','curve','x');edge('y','curve','y');edge('curve','meter');
+  } else if(kind==='peripherals') {
+    p.name='Periféricos · '+b.name;
+    const used=new Set(),pin=()=>{const found=b.gpio.find(p=>!b.inputOnly.includes(p)&&!used.has(p));used.add(found);return found;};
+    if(b.dac.length){const gpio=b.dac[0];used.add(gpio);node('slider','level',40,80,{min:0,max:255,value:0},'DAC · código 0–255');node('dac','dac',350,80,{pin:gpio});edge('level','dac');}
+    if(b.touch.length){const gpio=b.touch.find(p=>!used.has(p));used.add(gpio);node('touch','touch',40,300,{pin:gpio});node('multimeter','touchDisplay',350,300,{unit:'cuentas',range:1e9,prefix:'fixed'});edge('touch','touchDisplay');}
+    node('slider','pitch',40,530,{min:0,max:20000,value:0},'Tone · 0 apaga, mínimo 20 Hz');node('tone','tone',350,530,{pin:pin()});edge('pitch','tone');
+    if(b.pcnt){node('pcnt','tach',660,80,{pin:pin(),gateMs:100,ppr:1,mode:'rpm'});node('multimeter','rpm',950,80,{unit:'RPM',range:1e9,prefix:'fixed'});edge('tach','rpm');}
   } else if(kind!=='empty') throw Error('Ejemplo desconocido');
   return p;
 }

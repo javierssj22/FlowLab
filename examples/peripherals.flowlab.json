@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "name": "Periféricos · ESP32",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "level",
+      "type": "slider",
+      "label": "DAC · código 0–255",
+      "x": 40,
+      "y": 80,
+      "params": {
+        "value": 0,
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "id": "dac",
+      "type": "dac",
+      "label": "ESP32 · DAC",
+      "x": 350,
+      "y": 80,
+      "params": {
+        "pin": 25
+      }
+    },
+    {
+      "id": "touch",
+      "type": "touch",
+      "label": "ESP32 · Touch",
+      "x": 40,
+      "y": 300,
+      "params": {
+        "pin": 4
+      }
+    },
+    {
+      "id": "touchDisplay",
+      "type": "multimeter",
+      "label": "Display multímetro",
+      "x": 350,
+      "y": 300,
+      "params": {
+        "unit": "cuentas",
+        "digits": 4,
+        "range": 1000000000,
+        "prefix": "fixed"
+      }
+    },
+    {
+      "id": "pitch",
+      "type": "slider",
+      "label": "Tone · 0 apaga, mínimo 20 Hz",
+      "x": 40,
+      "y": 530,
+      "params": {
+        "value": 0,
+        "min": 0,
+        "max": 20000
+      }
+    },
+    {
+      "id": "tone",
+      "type": "tone",
+      "label": "ESP32 · Tone",
+      "x": 350,
+      "y": 530,
+      "params": {
+        "pin": 13
+      }
+    },
+    {
+      "id": "tach",
+      "type": "pcnt",
+      "label": "ESP32 · PCNT tacómetro",
+      "x": 660,
+      "y": 80,
+      "params": {
+        "pin": 14,
+        "gateMs": 100,
+        "ppr": 1,
+        "mode": "rpm",
+        "filterNs": 0
+      }
+    },
+    {
+      "id": "rpm",
+      "type": "multimeter",
+      "label": "Display multímetro",
+      "x": 950,
+      "y": 80,
+      "params": {
+        "unit": "RPM",
+        "digits": 4,
+        "range": 1000000000,
+        "prefix": "fixed"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "level",
+      "to": "dac",
+      "input": "in"
+    },
+    {
+      "from": "touch",
+      "to": "touchDisplay",
+      "input": "in"
+    },
+    {
+      "from": "pitch",
+      "to": "tone",
+      "input": "in"
+    },
+    {
+      "from": "tach",
+      "to": "rpm",
+      "input": "in"
+    }
+  ]
+}

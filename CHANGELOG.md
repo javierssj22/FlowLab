@@ -1,3 +1,12 @@
+# 0.3.0 — 2026-09-21
+
+- Diez nuevos tipos de bloque, 80 en total; Vector Index conserva compatibilidad.
+- FFT calibrada por ventana, estadísticas de waveform, Int16 y operaciones I32.
+- Protocolo 3 con DAC, PCNT, Touch y Tone por capacidades de familia.
+- Panel XY, multímetro y espectro con exportación JSON.
+- Cuatro ejemplos, documentación y paquetes Windows/Linux actualizados.
+- 50 pruebas JavaScript y 24 Python aprobadas localmente; la validación física sigue pendiente.
+
 # Distribucion Linux de 0.2 — 2026-09-20
 
 - Instalador local con venv, wheels universales y comprobacion SHA-256, sin acceso a PyPI.

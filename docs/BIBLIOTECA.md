@@ -1,6 +1,6 @@
 # Biblioteca de FlowLab
 
-70 tipos de bloque. El exportador Arduino admite los 58 bloques escalares originales y subVIs escalares; los bloques de lotes requieren el motor conectado de 0.2. Los terminales IN/OUT se utilizan dentro de módulos. Los bloques ESP32 realizan operaciones de hardware solo en modo Hardware. La validación del generador no sustituye la compilación y prueba física.
+80 tipos de bloque. El exportador Arduino admite los 58 bloques escalares originales, Bitwise Ops, XY, Display multímetro y subVIs escalares; los bloques de lotes y DAC/PCNT/Touch/Tone requieren el motor conectado. Guía: [PAQUETE-0.3.md](PAQUETE-0.3.md). Los terminales IN/OUT se utilizan dentro de módulos. Los bloques ESP32 realizan operaciones de hardware solo en modo Hardware. La validación del generador no sustituye la compilación y prueba física.
 
 ## Tipos y colores
 
@@ -15,115 +15,83 @@
 
 La posición del bloque no determina el orden de ejecución: lo determinan sus conexiones. Los ciclos necesitan memoria. Los bloques con estado se reinician en cada ejecución nueva.
 
-## Lotes
+## Señales
 
-### Vector numérico
+### FFT · espectro
 
-Arreglo de hasta 4096 números finitos.
+FFT radix-2 de 16–4096 muestras. Espectro unilateral de amplitud pico; el panel usa Hz. Salida vector para Vector Index.
 
-- Identificador: `vector`
-- Entradas: ninguna
-- Salida: Vector · DBL[]
-- Parámetros: `values` — Arreglo JSON; valor inicial: "[1,2,3,4]".
-
-### Construir waveform
-
-Agrega un intervalo de muestreo uniforme y origen temporal al vector.
-
-- Identificador: `makeWaveform`
-- Entradas: `in` (Vector · DBL[])
-- Salida: Waveform · Y/dt
-- Parámetros: `dt` — dt · segundos; valor inicial: 0.001; rango: 1e-9 a 86400; `t0` — t0 · segundos; valor inicial: 0; rango: -1000000000 a 1000000000.
-
-### Extraer muestras
-
-Extrae las muestras de una waveform.
-
-- Identificador: `waveformSamples`
+- Identificador: `fft`
 - Entradas: `in` (Waveform · Y/dt)
 - Salida: Vector · DBL[]
+- Parámetros: `window` — Ventana; valor inicial: "hann"; opciones: hann, rectangular; `removeMean` — Eliminar DC; valor inicial: "yes"; opciones: yes, no; `scale` — Escala; valor inicial: "amplitude"; opciones: amplitude, dB; `reference` — Referencia dB; valor inicial: 1; rango: 1e-12 a 1000000000000.
 
-### Escalar waveform
+### Waveform Stats
 
-Escala todas las muestras preservando dt, t0 y metadatos.
+Estadística de todas las muestras; RMS total o componente AC, desviación poblacional y pico a pico.
 
-- Identificador: `waveformScale`
+- Identificador: `waveformStats`
 - Entradas: `in` (Waveform · Y/dt)
-- Salida: Waveform · Y/dt
-- Parámetros: `gain` — Ganancia; valor inicial: 1; rango: -1000000000 a 1000000000; `offset` — Offset; valor inicial: 0; rango: -1000000000 a 1000000000.
+- Salida: Decimal · DBL
+- Parámetros: `mode` — Estadística; valor inicial: "rms"; opciones: mean, rms, acRms, stddev, min, max, peakToPeak.
 
-### Estadística de vector
+## Protocolos
 
-Procesa el bloque completo; rechaza vectores vacíos.
+### Unpack Int16
 
-- Identificador: `vectorStat`
+Decodifica dos bytes I²C como Int16 o UInt16, con offset y endianness explícitos.
+
+- Identificador: `unpackInt16`
 - Entradas: `in` (Vector · DBL[])
-- Salida: Decimal · DBL
-- Parámetros: `mode` — Operación; valor inicial: "mean"; opciones: mean, rms, min, max.
+- Salida: Entero · I32
+- Parámetros: `offset` — Offset de byte; valor inicial: 0; rango: 0 a 30; `endian` — Orden de bytes; valor inicial: "big"; opciones: big, little; `signed` — Con signo; valor inicial: "yes"; opciones: yes, no.
 
-### Índice de vector
+### Bitwise Ops
 
-Lee un elemento; falla si está fuera del vector.
+Operaciones I32 a nivel de bits. NOT ignora b; conecta 0. Desplazamientos de 0–31 bits; SHR conserva signo.
 
-- Identificador: `vectorAt`
-- Entradas: `in` (Vector · DBL[])
-- Salida: Decimal · DBL
-- Parámetros: `index` — Índice; valor inicial: 0; rango: 0 a 4095.
-
-## Instrumentos
-
-### Gráfico de waveform
-
-Representa el lote completo con el eje temporal definido por dt y t0.
-
-- Identificador: `waveformChart`
-- Entradas: `in` (Waveform · Y/dt)
-- Salida: Waveform · Y/dt
-
-### Osciloscopio
-
-Traza temporal. Conserva las últimas 600 muestras en pantalla.
-
-- Identificador: `chart`
-- Entradas: `in` (Decimal · DBL)
-- Salida: Decimal · DBL
-- Parámetros: `unit` — Unidad; valor inicial: "V".
-
-### Indicador numérico
-
-Lectura numérica e indicador de rango en el panel frontal.
-
-- Identificador: `gauge`
-- Entradas: `in` (Decimal · DBL)
-- Salida: Decimal · DBL
-- Parámetros: `unit` — Unidad; valor inicial: "V"; `min` — Mínimo; valor inicial: 0; rango: -1000000000 a 1000000000; `max` — Máximo; valor inicial: 5; rango: -1000000000 a 1000000000.
-
-### LED de estado
-
-Indicador booleano en el panel frontal.
-
-- Identificador: `led`
-- Entradas: `in` (Booleano · BOOL)
-- Salida: Booleano · BOOL
-
-### Indicador de texto
-
-Muestra texto en el panel frontal.
-
-- Identificador: `textIndicator`
-- Entradas: `in` (Texto · STRING)
-- Salida: Texto · STRING
-
-### Registro de datos
-
-Registra tiempo y valor. Exportación CSV desde la barra inferior.
-
-- Identificador: `log`
-- Entradas: `in` (Decimal · DBL)
-- Salida: Decimal · DBL
-- Parámetros: `unit` — Unidad; valor inicial: "".
+- Identificador: `bitwise`
+- Entradas: `a` (Entero · I32), `b` (Entero · I32)
+- Salida: Entero · I32
+- Parámetros: `op` — Operación; valor inicial: "and"; opciones: and, or, xor, not, shl, shr.
 
 ## ESP32
+
+### ESP32 · DAC
+
+Salida DAC nativa 8-bit: redondea y limita a 0–255. Solo ESP32/S2; STOP deshabilita el DAC y lleva GPIO a LOW.
+
+- Identificador: `dac`
+- Entradas: `in` (Decimal · DBL)
+- Salida: Entero · I32
+- Parámetros: `pin` — GPIO DAC; valor inicial: 25; rango: 0 a 54.
+
+### ESP32 · PCNT tacómetro
+
+Cuenta flancos ascendentes con PCNT durante una ventana finita y calcula Hz/RPM. No disponible en ESP32-C3; hay huecos entre ventanas.
+
+- Identificador: `pcnt`
+- Entradas: ninguna
+- Salida: Decimal · DBL
+- Parámetros: `pin` — GPIO de pulsos; valor inicial: 27; rango: 0 a 54; `gateMs` — Ventana · ms; valor inicial: 100; rango: 10 a 1000; `ppr` — Pulsos por vuelta; valor inicial: 1; rango: 1 a 10000; `mode` — Salida; valor inicial: "rpm"; opciones: rpm, Hz; `filterNs` — Filtro de glitches · ns (0 = sin filtro); valor inicial: 0; rango: 0 a 10000.
+
+### ESP32 · Touch
+
+Lectura capacitiva cruda, no un booleano ni una capacitancia calibrada. ESP32/S2/S3; la dirección del cambio depende de la familia.
+
+- Identificador: `touch`
+- Entradas: ninguna
+- Salida: Decimal · DBL
+- Parámetros: `pin` — GPIO táctil; valor inicial: 4; rango: 0 a 54.
+
+### ESP32 · Tone
+
+Tono cuadrado LEDC al 50 %. Entrada 20–20000 Hz, 0 apaga. Un Tone por grafo y sin PWM simultáneo para evitar temporizadores compartidos.
+
+- Identificador: `tone`
+- Entradas: `in` (Decimal · DBL)
+- Salida: Decimal · DBL
+- Parámetros: `pin` — GPIO de salida; valor inicial: 25; rango: 0 a 54.
 
 ### ESP32 · ADC ráfaga DMA
 
@@ -196,6 +164,132 @@ Escribe un registro de 8 bits; entrada limitada a 0–255.
 - Entradas: `in` (Decimal · DBL)
 - Salida: Entero · I32
 - Parámetros: `address` — Dirección decimal; valor inicial: 72; rango: 8 a 119; `register` — Registro; valor inicial: 0; rango: 0 a 255.
+
+## Instrumentos
+
+### Gráfica XY
+
+Grafica pares (x,y) en orden de adquisición, incluso X decreciente. Conserva hasta N pares; salida y.
+
+- Identificador: `xyChart`
+- Entradas: `x` (Decimal · DBL), `y` (Decimal · DBL)
+- Salida: Decimal · DBL
+- Parámetros: `xUnit` — Unidad X; valor inicial: "V"; `yUnit` — Unidad Y; valor inicial: "mA"; `points` — Puntos conservados; valor inicial: 600; rango: 16 a 4096.
+
+### Display multímetro
+
+Indicador con prefijos SI, signo y OL fuera de rango. Muestra la magnitud recibida; no mide corriente/resistencia sin el circuito y conversión adecuados.
+
+- Identificador: `multimeter`
+- Entradas: `in` (Decimal · DBL)
+- Salida: Decimal · DBL
+- Parámetros: `unit` — Unidad física; valor inicial: "V"; `digits` — Decimales; valor inicial: 4; rango: 0 a 6; `range` — Rango absoluto en unidad base; valor inicial: 1000; rango: 1e-12 a 1000000000000; `prefix` — Prefijo SI; valor inicial: "auto"; opciones: auto, fixed.
+
+### Gráfico de waveform
+
+Representa el lote completo con el eje temporal definido por dt y t0.
+
+- Identificador: `waveformChart`
+- Entradas: `in` (Waveform · Y/dt)
+- Salida: Waveform · Y/dt
+
+### Osciloscopio
+
+Traza temporal. Conserva las últimas 600 muestras en pantalla.
+
+- Identificador: `chart`
+- Entradas: `in` (Decimal · DBL)
+- Salida: Decimal · DBL
+- Parámetros: `unit` — Unidad; valor inicial: "V".
+
+### Indicador numérico
+
+Lectura numérica e indicador de rango en el panel frontal.
+
+- Identificador: `gauge`
+- Entradas: `in` (Decimal · DBL)
+- Salida: Decimal · DBL
+- Parámetros: `unit` — Unidad; valor inicial: "V"; `min` — Mínimo; valor inicial: 0; rango: -1000000000 a 1000000000; `max` — Máximo; valor inicial: 5; rango: -1000000000 a 1000000000.
+
+### LED de estado
+
+Indicador booleano en el panel frontal.
+
+- Identificador: `led`
+- Entradas: `in` (Booleano · BOOL)
+- Salida: Booleano · BOOL
+
+### Indicador de texto
+
+Muestra texto en el panel frontal.
+
+- Identificador: `textIndicator`
+- Entradas: `in` (Texto · STRING)
+- Salida: Texto · STRING
+
+### Registro de datos
+
+Registra tiempo y valor. Exportación CSV desde la barra inferior.
+
+- Identificador: `log`
+- Entradas: `in` (Decimal · DBL)
+- Salida: Decimal · DBL
+- Parámetros: `unit` — Unidad; valor inicial: "".
+
+## Lotes
+
+### Vector numérico
+
+Arreglo de hasta 4096 números finitos.
+
+- Identificador: `vector`
+- Entradas: ninguna
+- Salida: Vector · DBL[]
+- Parámetros: `values` — Arreglo JSON; valor inicial: "[1,2,3,4]".
+
+### Construir waveform
+
+Agrega un intervalo de muestreo uniforme y origen temporal al vector.
+
+- Identificador: `makeWaveform`
+- Entradas: `in` (Vector · DBL[])
+- Salida: Waveform · Y/dt
+- Parámetros: `dt` — dt · segundos; valor inicial: 0.001; rango: 1e-9 a 86400; `t0` — t0 · segundos; valor inicial: 0; rango: -1000000000 a 1000000000.
+
+### Extraer muestras
+
+Extrae las muestras de una waveform.
+
+- Identificador: `waveformSamples`
+- Entradas: `in` (Waveform · Y/dt)
+- Salida: Vector · DBL[]
+
+### Escalar waveform
+
+Escala todas las muestras preservando dt, t0 y metadatos.
+
+- Identificador: `waveformScale`
+- Entradas: `in` (Waveform · Y/dt)
+- Salida: Waveform · Y/dt
+- Parámetros: `gain` — Ganancia; valor inicial: 1; rango: -1000000000 a 1000000000; `offset` — Offset; valor inicial: 0; rango: -1000000000 a 1000000000.
+
+### Estadística de vector
+
+Procesa el bloque completo; rechaza vectores vacíos.
+
+- Identificador: `vectorStat`
+- Entradas: `in` (Vector · DBL[])
+- Salida: Decimal · DBL
+- Parámetros: `mode` — Operación; valor inicial: "mean"; opciones: mean, rms, min, max.
+
+### Vector Index · Índice de vector
+
+Lee un elemento desde índice cero; falla si está fuera del vector. Compatible con proyectos 0.2.
+
+- Identificador: `vectorAt`
+- Entradas: `in` (Vector · DBL[])
+- Salida: Decimal · DBL
+- Parámetros: `index` — Índice; valor inicial: 0; rango: 0 a 4095.
 
 ## Módulos
 

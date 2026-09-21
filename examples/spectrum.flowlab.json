@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "name": "FFT · espectro y RMS de una captura DMA",
+  "board": "esp32",
+  "interval": 1000,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "burst",
+      "type": "adcBurst",
+      "label": "ESP32 · ADC ráfaga DMA",
+      "x": 50,
+      "y": 80,
+      "params": {
+        "pin": 32,
+        "rate": 20000,
+        "count": 1024,
+        "trigger": "immediate",
+        "level": 2048,
+        "pre": 0,
+        "timeout": 2000
+      }
+    },
+    {
+      "id": "spectrum",
+      "type": "fft",
+      "label": "FFT · espectro",
+      "x": 360,
+      "y": 80,
+      "params": {
+        "window": "hann",
+        "removeMean": "yes",
+        "scale": "amplitude",
+        "reference": 1
+      }
+    },
+    {
+      "id": "stats",
+      "type": "waveformStats",
+      "label": "Waveform Stats",
+      "x": 360,
+      "y": 290,
+      "params": {
+        "mode": "acRms"
+      }
+    },
+    {
+      "id": "meter",
+      "type": "multimeter",
+      "label": "Display multímetro",
+      "x": 670,
+      "y": 290,
+      "params": {
+        "unit": "ADC",
+        "digits": 4,
+        "range": 4095,
+        "prefix": "fixed"
+      }
+    },
+    {
+      "id": "scope",
+      "type": "waveformChart",
+      "label": "Gráfico de waveform",
+      "x": 360,
+      "y": 490,
+      "params": {}
+    },
+    {
+      "id": "bin",
+      "type": "vectorAt",
+      "label": "Bin 51 · 996,09 Hz a 20 kSa/s",
+      "x": 670,
+      "y": 80,
+      "params": {
+        "index": 51
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "burst",
+      "to": "spectrum",
+      "input": "in"
+    },
+    {
+      "from": "burst",
+      "to": "stats",
+      "input": "in"
+    },
+    {
+      "from": "stats",
+      "to": "meter",
+      "input": "in"
+    },
+    {
+      "from": "burst",
+      "to": "scope",
+      "input": "in"
+    },
+    {
+      "from": "spectrum",
+      "to": "bin",
+      "input": "in"
+    }
+  ]
+}

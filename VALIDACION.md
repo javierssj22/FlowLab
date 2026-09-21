@@ -1,3 +1,13 @@
+# Validación de FlowLab 0.3
+
+- 50 pruebas JavaScript y 24 Python aprobadas localmente en Windows.
+- FFT contrastada con DFT directa independiente, seno conocido, ganancia Hann, DC/Nyquist y dB.
+- Pruebas de estadísticas, Int16, máscaras/desplazamientos, multímetro y buffer XY.
+- Los cuatro ejemplos nuevos validan y simulan en las cinco familias.
+- Contratos de los nuevos periféricos probados con transporte simulado; no hay una placa conectada para verificar mediciones, watchdog o señal física.
+- La compilación del firmware para las cinco familias y la suite Windows/Linux se verifican mediante Actions. Los resultados 0.3 se registrarán tras ejecutarse.
+- La siguiente sección conserva el registro histórico de 0.2.
+
 # Validación de FlowLab 0.2 — 2026-09-20
 
 ## Resultado de esta revisión

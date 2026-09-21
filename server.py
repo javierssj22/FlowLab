@@ -70,7 +70,7 @@ class Bridge:
                 time.sleep(1.8)  # USB/UART reset and boot ROM messages.
                 self.connection.reset_input_buffer()
                 self.info = self._request("hello")
-                if not isinstance(self.info, dict) or self.info.get("protocol") not in (1, 2):
+                if not isinstance(self.info, dict) or self.info.get("protocol") not in (1, 2, 3):
                     raise ValueError("Firmware incompatible; carga FlowLabBridge.")
                 if self.info.get("family") != board:
                     raise ValueError(f"La placa responde como {self.info.get('family')}, no {board}.")
@@ -125,6 +125,26 @@ class Bridge:
             params = []
             if command in ("hello", "stop", "ping", "scan"):
                 pass
+            elif command in ('dac', 'touch', 'pcnt', 'tone'):
+                if not self.info or self.info.get('protocol') != 3:
+                    raise ValueError('Carga FlowLabBridge 0.3 (protocolo 3).')
+                pin = integer(args, 'pin', 0, 54)
+                if pin not in b['gpio'] or command in ('dac', 'tone') and pin in b['inputOnly']:
+                    raise ValueError('GPIO inválido para el periférico.')
+                if command in ('dac', 'touch') and pin not in b[command]:
+                    raise ValueError('Periférico o pin no disponible en esta familia.')
+                params = [pin]
+                if command == 'dac':
+                    params.append(integer(args, 'value', 0, 255))
+                elif command == 'pcnt':
+                    if not b['pcnt']:
+                        raise ValueError('PCNT no disponible en esta familia.')
+                    params += [integer(args, 'gateMs', 10, 1000), integer(args, 'filterNs', 0, 10000)]
+                elif command == 'tone':
+                    frequency = integer(args, 'frequency', 0, 20000)
+                    if 0 < frequency < 20:
+                        raise ValueError('Tone: 0 o 20–20000 Hz.')
+                    params.append(frequency)
             elif command in ("adc", "read", "write", "pwm"):
                 pin = integer(args, "pin", 0, 54)
                 if pin not in b["gpio"]:
@@ -152,7 +172,7 @@ class Bridge:
                     raise ValueError("Pines I²C inválidos.")
                 params = [sda, scl]
             elif command == 'burst':
-                if not self.info or self.info.get('protocol') != 2:
+                if not self.info or self.info.get('protocol') not in (2, 3):
                     raise ValueError('La adquisición por ráfaga requiere protocolo 2.')
                 pin = integer(args, 'pin', 0, 54)
                 if pin not in b['adc']:
@@ -168,7 +188,7 @@ class Bridge:
                           ('immediate', 'rising', 'falling').index(trigger), integer(args, 'level', 0, 4095),
                           pre, integer(args, 'timeout', 100, 5000)]
             elif command == 'i2cxfer':
-                if not self.info or self.info.get('protocol') != 2:
+                if not self.info or self.info.get('protocol') not in (2, 3):
                     raise ValueError('I²C multibyte requiere protocolo 2.')
                 tx = args.get('tx')
                 if not isinstance(tx, list) or len(tx) > 32 or any(type(v) is not int or not 0 <= v <= 255 for v in tx):
@@ -261,7 +281,7 @@ def toolchain(action, board, port=None):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "FlowLab/0.2"
+    server_version = "FlowLab/0.3"
 
     def log_message(self, fmt, *args):
         if len(args) > 1 and str(args[1]).startswith(("4", "5")):
@@ -305,7 +325,7 @@ class Handler(BaseHTTPRequestHandler):
             # Avoid waiting on the bridge lock while the compiler runs.
             with JOB_LOCK:
                 busy = JOB["running"]
-            self.send_data({"version": "0.2.0", "wsUrl": f'ws://127.0.0.1:{WS_PORT}' if WS_PORT else None, "serialInstalled": serial is not None,
+            self.send_data({"version": "0.3.0", "wsUrl": f'ws://127.0.0.1:{WS_PORT}' if WS_PORT else None, "serialInstalled": serial is not None,
                             "arduinoCli": arduino_cli() is not None,
                             "bridge": {"connected": False} if busy else BRIDGE.status(), "toolchainBusy": busy})
         elif path == "/api/ports":
@@ -382,7 +402,7 @@ def main():
     except ImportError:
         print('WebSocket no instalado; instala requirements.txt o usa WebSerial.', flush=True)
     url = f"http://127.0.0.1:{server.server_address[1]}"
-    print(f"FlowLab 0.2.0 · {url}\nCtrl+C para cerrar.", flush=True)
+    print(f"FlowLab 0.3.0 · {url}\nCtrl+C para cerrar.", flush=True)
     if not args.no_browser:
         threading.Timer(0.6, functools.partial(webbrowser.open, url)).start()
     try:

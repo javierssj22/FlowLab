@@ -39,7 +39,20 @@
     ],
     "sda": 21,
     "scl": 22,
-    "output": 25
+    "output": 25,
+    "dac": [
+      25,
+      26
+    ],
+    "touch": [
+      4,
+      13,
+      14,
+      27,
+      32,
+      33
+    ],
+    "pcnt": true
   },
   "esp32s2": {
     "name": "ESP32-S2",
@@ -80,7 +93,28 @@
     "inputOnly": [],
     "sda": 8,
     "scl": 9,
-    "output": 5
+    "output": 5,
+    "dac": [
+      17,
+      18
+    ],
+    "touch": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "pcnt": true
   },
   "esp32s3": {
     "name": "ESP32-S3",
@@ -119,7 +153,24 @@
     "inputOnly": [],
     "sda": 8,
     "scl": 9,
-    "output": 5
+    "output": 5,
+    "dac": [],
+    "touch": [
+      1,
+      2,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "pcnt": true
   },
   "esp32c3": {
     "name": "ESP32-C3",
@@ -143,7 +194,10 @@
     "inputOnly": [],
     "sda": 6,
     "scl": 7,
-    "output": 5
+    "output": 5,
+    "dac": [],
+    "touch": [],
+    "pcnt": false
   },
   "esp32c6": {
     "name": "ESP32-C6",
@@ -178,6 +232,9 @@
     "inputOnly": [],
     "sda": 6,
     "scl": 7,
-    "output": 5
+    "output": 5,
+    "dac": [],
+    "touch": [],
+    "pcnt": true
   }
 }

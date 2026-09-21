@@ -33,7 +33,7 @@
     {
       "id": "byte",
       "type": "vectorAt",
-      "label": "Índice de vector",
+      "label": "Vector Index · Índice de vector",
       "x": 650,
       "y": 80,
       "params": {

@@ -34,11 +34,15 @@ void reply(long id, long value=0) {
   Serial.printf("{\"id\":%ld,\"ok\":true,\"value\":%ld}\n", id, value);
 }
 #include "burst.h"
+#include "peripherals.h"
 void stopOutputs() {
   for (int pin=0;pin<SOC_GPIO_PIN_COUNT;pin++) {
-    if (modes[pin]==3) { ledcWrite(pin,0); ledcDetach(pin); }
-    if (modes[pin]==2 || modes[pin]==3) { pinMode(pin,OUTPUT); digitalWrite(pin,LOW); }
-    if(modes[pin]==4)perimanClearPinBus(pin);
+    if (modes[pin]==3 || (modes[pin]==8&&frequencies[pin])) { ledcWrite(pin,0); ledcDetach(pin); }
+#if SOC_DAC_SUPPORTED
+    if(modes[pin]==6){dacWrite(pin,0);dacDisable(pin);}
+#endif
+    if (modes[pin]==2 || modes[pin]==3 || modes[pin]==6 || modes[pin]==8) { pinMode(pin,OUTPUT); digitalWrite(pin,LOW); }
+    if(modes[pin]==4||modes[pin]==7)perimanClearPinBus(pin);
     modes[pin]=0;frequencies[pin]=0;
   }
   if (i2cReady) Wire.end();
@@ -61,10 +65,14 @@ void dispatch(char* line) {
   }
   if(watchdogTripped && strcmp(command,"stop") && strcmp(command,"hello")) {fail(id,"Watchdog expired: stop and restart the flow");return;}
   if (!strcmp(command,"hello") && count==0) {
-    Serial.printf("{\"id\":%ld,\"ok\":true,\"value\":{\"protocol\":2,\"family\":\"%s\",\"chip\":\"%s\",\"watchdogMs\":2000,\"capabilities\":[\"adc-burst-dma\",\"i2c-multibyte\"],\"maxSamples\":4096,\"maxI2cBytes\":32}}\n",id,FL_FAMILY,ESP.getChipModel());
+    Serial.printf("{\"id\":%ld,\"ok\":true,\"value\":{\"protocol\":3,\"family\":\"%s\",\"chip\":\"%s\",\"watchdogMs\":2000,\"capabilities\":[\"adc-burst-dma\",\"i2c-multibyte\"],\"maxSamples\":4096,\"maxI2cBytes\":32}}\n",id,FL_FAMILY,ESP.getChipModel());
   } else if (!strcmp(command,"stop") && count==0) {stopOutputs();watchdogTripped=false;armed=false;reply(id);}
   else if (!strcmp(command,"ping") && count==0) {reply(id,millis());}
   else if (!strcmp(command,"burst") && count==7) {captureBurst(id,a);}
+  else if (!strcmp(command,"dac") && count==2) {writeDac(id,a);}
+  else if (!strcmp(command,"touch") && count==1) {readTouch(id,a);}
+  else if (!strcmp(command,"tone") && count==2) {writeTone(id,a);}
+  else if (!strcmp(command,"pcnt") && count==3) {capturePcnt(id,a);}
   else if (!strcmp(command,"i2cxfer") && count>=4) {
     int address=a[0],tx=a[1],rx=a[2],stop=a[3];
     if(!i2cReady||address<8||address>119||tx<0||tx>32||rx<0||rx>32||(!tx&&!rx)||(stop!=0&&stop!=1)||count!=(size_t)(4+tx)){fail(id,"Invalid I2C frame");return;}
@@ -91,7 +99,7 @@ void dispatch(char* line) {
     modes[pin]=2;armed=true;pinMode(pin,OUTPUT);digitalWrite(pin,a[1]);reply(id,a[1]);
   } else if (!strcmp(command,"pwm") && count==3) {
     int pin=a[0];
-    if(!permitted(pin,true)||!available(pin,3)||a[1]<0||a[1]>255||a[2]<100||a[2]>20000) {fail(id,"Invalid PWM or pin busy");return;}
+    if(!permitted(pin,true)||!available(pin,3)||hasMode(8)||a[1]<0||a[1]>255||a[2]<100||a[2]>20000) {fail(id,"Invalid PWM, Tone conflict or pin busy");return;}
     if(modes[pin]==3 && frequencies[pin]!=(uint32_t)a[2]) {fail(id,"Stop before changing PWM frequency");return;}
     if(modes[pin]!=3 && !ledcAttach(pin,a[2],8)) {fail(id,"LEDC channel/frequency unavailable");return;}
     modes[pin]=3;armed=true;frequencies[pin]=a[2];

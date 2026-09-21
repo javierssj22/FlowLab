@@ -1,8 +1,8 @@
-# FlowLab 0.2 para Linux
+# FlowLab 0.3 para Linux
 
 Esta distribución contiene el código ejecutable mediante Python, la interfaz, el firmware ESP32, los ejemplos, las pruebas y los paquetes Python necesarios. Conserva las funciones de Windows: diagrama de bloques, panel frontal, seis tipos de datos, subVIs, WebSocket, WebSerial y protocolo 2.
 
-**El archivo FlowLab-0.2-Linux.tar.gz no es un binario nativo ni una AppImage.** Necesita Python 3.10 o posterior con `venv`. Los dos paquetes Python se incluyen como wheels independientes del sistema y de la arquitectura; no incluyen un intérprete Python. El mismo paquete fuente puede instalarse en Linux x86_64 o ARM64 con un intérprete compatible; esta entrega no certifica esas plataformas mediante ejecución física.
+**El archivo FlowLab-0.3-Linux.tar.gz no es un binario nativo ni una AppImage.** Necesita Python 3.10 o posterior con `venv`. Los dos paquetes Python se incluyen como wheels independientes del sistema y de la arquitectura; no incluyen un intérprete Python. El mismo paquete fuente puede instalarse en Linux x86_64 o ARM64 con un intérprete compatible; esta entrega no certifica esas plataformas mediante ejecución física.
 
 ## Instalación rápida
 
@@ -16,7 +16,7 @@ sudo apt install python3 python3-venv
 En otras distribuciones instala Python 3.10+ y soporte `venv` con su gestor. Después, desde la carpeta donde descargaste el paquete:
 
 ```sh
-tar -xzf FlowLab-0.2-Linux.tar.gz
+tar -xzf FlowLab-0.3-Linux.tar.gz
 cd FlowLab
 sh instalar-linux.sh
 sh start.sh
@@ -70,7 +70,7 @@ sh start-webserial.sh
 
 Abre `http://127.0.0.1:8766`. La placa debe tener ya instalado el firmware; este modo no ofrece compilación/carga desde Arduino CLI.
 
-Los proyectos se guardan en archivos elegidos por el usuario. Si el navegador no implementa File System Access API, usa importación y descarga JSON. En aulas, utiliza cuentas Linux y carpetas separadas por alumno. Se conservan los límites y la política de persistencia de docs/ARQUITECTURA-0.2.md.
+Los proyectos se guardan en archivos elegidos por el usuario. Si el navegador no implementa File System Access API, usa importación y descarga JSON. En aulas, utiliza cuentas Linux y carpetas separadas por alumno. Se conservan los límites y la política de persistencia de docs/ARQUITECTURA-0.3.md.
 
 ## Ejecutable nativo opcional
 
@@ -80,7 +80,7 @@ El paquete incluye un script para construir un ejecutable Linux con Python y dep
 sh scripts/build-linux.sh
 ```
 
-Requiere ejecutarse en Linux, Python con venv, acceso a PyPI y herramientas del sistema requeridas por PyInstaller, como `ldd` y `objdump`/binutils. El resultado queda en `work/FlowLab-0.2-Linux-ARQUITECTURA-native.tar.gz` —por ejemplo `x86_64`— y se inicia mediante `./FlowLab` desde su carpeta, conservando `_internal` a su lado. El script incluye una prueba automática de arranque y autenticación WebSocket antes de crear el archivo.
+Requiere ejecutarse en Linux, Python con venv, acceso a PyPI y herramientas del sistema requeridas por PyInstaller, como `ldd` y `objdump`/binutils. El resultado queda en `work/FlowLab-0.3-Linux-ARQUITECTURA-native.tar.gz` —por ejemplo `x86_64`— y se inicia mediante `./FlowLab` desde su carpeta, conservando `_internal` a su lado. El script incluye una prueba automática de arranque y autenticación WebSocket antes de crear el archivo.
 
 También se incluye el workflow manual **Build Linux native package** para Ubuntu 22.04/x86_64. Puede ejecutarse después de subir el proyecto a un repositorio GitHub propio; no se ha publicado ni ejecutado remotamente durante esta entrega.
 

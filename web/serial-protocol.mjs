@@ -3,10 +3,14 @@ export function integer(x,min,max,name){if(!Number.isInteger(x)||x<min||x>max)th
 export function encodeCommand(command,a={},board){
   let args=[];const i=(key,low,high)=>integer(a[key],low,high,key);
   if(['hello','stop','ping','scan'].includes(command)){}
-  else if(['adc','read','write','pwm','burst'].includes(command)){
+  else if(['adc','read','write','pwm','burst','dac','touch','pcnt','tone'].includes(command)){
     const pin=i('pin',0,54);if(!board.gpio.includes(pin))throw Error('GPIO fuera del perfil.');args=[pin];
     if(['adc','burst'].includes(command)&&!board.adc.includes(pin))throw Error('GPIO no admite ADC en este perfil.');
-    if(['write','pwm'].includes(command)&&board.inputOnly.includes(pin))throw Error('GPIO solamente entrada.');
+    if(['write','pwm','dac','tone'].includes(command)&&board.inputOnly.includes(pin))throw Error('GPIO solamente entrada.');
+    if(['dac','touch'].includes(command)&&!board[command]?.includes(pin))throw Error('Periférico o pin no disponible en esta familia.');
+    if(command==='pcnt'){if(!board.pcnt)throw Error('PCNT no disponible en esta familia.');args.push(i('gateMs',10,1000),i('filterNs',0,10000));}
+    if(command==='dac')args.push(i('value',0,255));
+    if(command==='tone'){const frequency=i('frequency',0,20000);if(frequency!==0&&frequency<20)throw Error('Tone: 0 o 20–20000 Hz.');args.push(frequency);}
     if(command==='adc'){if(!['raw','millivolts'].includes(a.mode))throw Error('Modo ADC inválido.');args.push(a.mode==='raw'?0:1);}
     if(command==='read'){if(!['none','up','down'].includes(a.pull)||board.inputOnly.includes(pin)&&a.pull!=='none')throw Error('Pull inválido.');args.push(['none','up','down'].indexOf(a.pull));}
     if(command==='write')args.push(i('value',0,1));

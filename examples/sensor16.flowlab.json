@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "name": "Trama Int16 · −100 cuentas = −1 °C (ejemplo)",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "frame",
+      "type": "vector",
+      "label": "Trama de ejemplo · FF 9C",
+      "x": 40,
+      "y": 80,
+      "params": {
+        "values": "[255,156]"
+      }
+    },
+    {
+      "id": "word",
+      "type": "unpackInt16",
+      "label": "Unpack Int16",
+      "x": 330,
+      "y": 80,
+      "params": {
+        "offset": 0,
+        "endian": "big",
+        "signed": "yes"
+      }
+    },
+    {
+      "id": "factor",
+      "type": "constant",
+      "label": "Escala del sensor · ejemplo",
+      "x": 330,
+      "y": 270,
+      "params": {
+        "value": 0.01
+      }
+    },
+    {
+      "id": "scale",
+      "type": "multiply",
+      "label": "Multiplicación",
+      "x": 620,
+      "y": 80,
+      "params": {}
+    },
+    {
+      "id": "meter",
+      "type": "multimeter",
+      "label": "Display multímetro",
+      "x": 910,
+      "y": 80,
+      "params": {
+        "unit": "°C",
+        "digits": 4,
+        "range": 1000,
+        "prefix": "fixed"
+      }
+    },
+    {
+      "id": "mask",
+      "type": "integer",
+      "label": "Constante entera",
+      "x": 330,
+      "y": 470,
+      "params": {
+        "value": 255
+      }
+    },
+    {
+      "id": "bits",
+      "type": "bitwise",
+      "label": "Byte menos significativo",
+      "x": 620,
+      "y": 380,
+      "params": {
+        "op": "and"
+      }
+    },
+    {
+      "id": "byte",
+      "type": "gauge",
+      "label": "Indicador numérico",
+      "x": 910,
+      "y": 380,
+      "params": {
+        "unit": "byte",
+        "min": 0,
+        "max": 255
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "frame",
+      "to": "word",
+      "input": "in"
+    },
+    {
+      "from": "word",
+      "to": "scale",
+      "input": "a"
+    },
+    {
+      "from": "factor",
+      "to": "scale",
+      "input": "b"
+    },
+    {
+      "from": "scale",
+      "to": "meter",
+      "input": "in"
+    },
+    {
+      "from": "word",
+      "to": "bits",
+      "input": "a"
+    },
+    {
+      "from": "mask",
+      "to": "bits",
+      "input": "b"
+    },
+    {
+      "from": "bits",
+      "to": "byte",
+      "input": "in"
+    }
+  ]
+}

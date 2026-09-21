@@ -1,6 +1,10 @@
+# Protocolo FlowLab 0.3
+
+El firmware actual anuncia protocolo **3**; añade `dac`, `touch`, `pcnt` y `tone`. Formato, rangos y compatibilidad: [PAQUETE-0.3.md](PAQUETE-0.3.md). Conserva burst e I²C multibyte del protocolo 2. El parser actual acepta 511 caracteres y 36 argumentos; los límites de protocolo 1 descritos debajo son históricos.
+
 # Protocolo FlowLab 0.2
 
-El firmware actual anuncia protocolo **2**. Los comandos escalares siguientes se conservan por compatibilidad con 0.1. WebSocket, ráfagas y transacciones I²C nuevas están especificados en [ARQUITECTURA-0.2.md](ARQUITECTURA-0.2.md). La API HTTP antigua no se usa en el bucle del editor y queda bloqueada para mutaciones si una sesión WebSocket posee el dispositivo.
+El firmware 0.2 anuncia protocolo **2**. Los comandos escalares siguientes se conservan por compatibilidad con 0.1. WebSocket, ráfagas y transacciones I²C nuevas están especificados en [ARQUITECTURA-0.2.md](ARQUITECTURA-0.2.md). La API HTTP antigua no se usa en el bucle del editor y queda bloqueada para mutaciones si una sesión WebSocket posee el dispositivo.
 
 # Protocolo FlowLab 1
 

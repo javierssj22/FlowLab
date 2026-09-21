@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "name": "Curva XY · Lissajous",
+  "board": "esp32",
+  "interval": 50,
+  "i2c": {
+    "sda": 21,
+    "scl": 22
+  },
+  "nodes": [
+    {
+      "id": "x",
+      "type": "signal",
+      "label": "Generador de señal",
+      "x": 50,
+      "y": 80,
+      "params": {
+        "wave": "sine",
+        "frequency": 0.2,
+        "amplitude": 2,
+        "offset": 0,
+        "phase": 0
+      }
+    },
+    {
+      "id": "y",
+      "type": "signal",
+      "label": "Generador de señal",
+      "x": 50,
+      "y": 280,
+      "params": {
+        "wave": "sine",
+        "frequency": 0.2,
+        "amplitude": 1,
+        "offset": 0,
+        "phase": 1.5707963267948966
+      }
+    },
+    {
+      "id": "curve",
+      "type": "xyChart",
+      "label": "Gráfica XY",
+      "x": 370,
+      "y": 80,
+      "params": {
+        "xUnit": "V",
+        "yUnit": "V",
+        "points": 600
+      }
+    },
+    {
+      "id": "meter",
+      "type": "multimeter",
+      "label": "Display multímetro",
+      "x": 680,
+      "y": 80,
+      "params": {
+        "unit": "V",
+        "digits": 4,
+        "range": 5,
+        "prefix": "auto"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "x",
+      "to": "curve",
+      "input": "x"
+    },
+    {
+      "from": "y",
+      "to": "curve",
+      "input": "y"
+    },
+    {
+      "from": "curve",
+      "to": "meter",
+      "input": "in"
+    }
+  ]
+}
