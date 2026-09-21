@@ -56,7 +56,7 @@ Cierra completamente la sesión del sistema y vuelve a entrar antes de probar. O
 
 Para compilar/cargar firmware, instala Arduino CLI y Arduino-ESP32 3.3.5 como se indica en README.md. El backend busca `arduino-cli` en PATH o en `tools/arduino-cli` dentro de FlowLab. El archivo de esa herramienta debe tener permiso de ejecución. Arduino CLI y el núcleo no se incluyen en este paquete; los fuentes de FlowLabBridge sí.
 
-El firmware DMA todavía necesita compilación y validación física; cambiar a Linux no elimina los pendientes registrados en VALIDACION.md. El control por WebSocket funciona con firmware escalar de protocolo 1; las ráfagas e I²C multibyte requieren protocolo 2.
+El firmware necesita validación física; cambiar a Linux no elimina los pendientes registrados en VALIDACION.md. El control por WebSocket funciona con firmware escalar de protocolo 1; las ráfagas e I²C multibyte requieren protocolo 2 o 3; DAC/PCNT/Touch/Tone requieren protocolo 3.
 
 ## WebSerial y archivos
 
@@ -92,4 +92,4 @@ El script conserva licencias de Python, pyserial, websockets y PyInstaller. Si t
 
 Se verifican el contenido y los modos de ejecución del tar, finales de línea LF, instalación offline de los wheels en un entorno Windows limpio, análisis de sintaxis de los scripts con Bash de Git, pruebas del código compartido y arranque HTTP/WebSocket mediante el script de smoke test en Windows. **Bash de Git no es Linux.** Este equipo no tiene WSL instalado ni un runtime Linux disponible: no se ejecutaron el instalador, el servidor ni el empaquetador nativo bajo un kernel Linux.
 
-La CI incluye una matriz Windows/Ubuntu con instalación offline y smoke test de Linux. Las pruebas USB físicas, adquisición DMA y permisos del navegador siguen pendientes. La presencia de un workflow no demuestra que ya haya pasado en un runner remoto.
+La CI incluye una matriz Windows/Ubuntu con instalación offline y smoke test de Linux. Las pruebas USB físicas, adquisición DMA y permisos del navegador siguen pendientes. Consulta los resultados remotos enlazados en VALIDACION.md.

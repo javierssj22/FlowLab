@@ -82,7 +82,7 @@ La estructura del grafo se bloquea durante ejecución. Los sliders, controles de
 
 ## Bloques
 
-La biblioteca actual tiene **70 tipos**. El catálogo completo está en `docs/BIBLIOTECA.md`. Además de los bloques iniciales, incluye potencia, raíz, valor absoluto, resto, redondeo, trigonometría, logaritmo, exponencial, mínimo/máximo, OR, XOR, conversión booleana, longitud UTF-8, pulsos, ruido reproducible, media móvil, RMS, derivada, integrador, histéresis, flancos, contador, retardo a la conexión y estadística acumulada.
+La biblioteca actual tiene **80 tipos**. El catálogo completo está en `docs/BIBLIOTECA.md`. Además de los bloques iniciales, incluye potencia, raíz, valor absoluto, resto, redondeo, trigonometría, logaritmo, exponencial, mínimo/máximo, OR, XOR, conversión booleana, longitud UTF-8, pulsos, ruido reproducible, media móvil, RMS, derivada, integrador, histéresis, flancos, contador, retardo a la conexión y estadística acumulada.
 
 Los tipos numéricos decimales usan doble precisión; los enteros se limitan a 32 bits con signo. El control de texto admite 1024 caracteres y las operaciones de texto se limitan a 4096 unidades UTF-16 en el navegador, mientras Arduino utiliza hasta 4096 bytes UTF-8: con caracteres no ASCII la capacidad máxima difiere. La longitud de texto mide bytes UTF-8 en ambos modos.
 
@@ -159,7 +159,7 @@ Después abre un ejemplo ADC o PWM y selecciona **ESP32 · Hardware**. En simula
 
 Los perfiles son listas limitadas de pines del SoC, **no certificaciones de todas las placas comerciales**. La lista completa está en `boards.json`. GPIO 34–39 del ESP32 clásico son solo entrada y carecen de pull-up/down interno; flash, PSRAM o componentes de tu placa pueden ocupar otros GPIO del perfil, como 16/17 en algunos módulos. Revisa siempre el esquema de la placa. Usa 3,3 V; el firmware no proporciona aislamiento eléctrico ni adaptación de nivel.
 
-La configuración genérica utiliza `Serial`; las placas con conversor USB-UART se conectan por ese puerto. En placas con USB nativo que no muestran el protocolo, compila manualmente con la opción adecuada de USB CDC on boot en Arduino IDE para esa placa. FlowLab 0.2 no expone las opciones avanzadas del menú de cada FQBN.
+La configuración genérica utiliza `Serial`; las placas con conversor USB-UART se conectan por ese puerto. En placas con USB nativo que no muestran el protocolo, compila manualmente con la opción adecuada de USB CDC on boot en Arduino IDE para esa placa. FlowLab 0.3 no expone las opciones avanzadas del menú de cada FQBN.
 
 C2, C5, C61, H2 y P4 no tienen perfiles FlowLab en esta entrega. La [compatibilidad de Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/getting_started.html) no equivale por sí sola a compatibilidad validada de FlowLab.
 
@@ -180,7 +180,7 @@ La detención no revierte comandos ya enviados a periféricos I²C ni conoce el 
 
 En **Dispositivos → Ejecución autónoma**, exporta `FlowLabStandalone.ino`. Guárdalo dentro de una carpeta llamada `FlowLabStandalone` y ábrelo en Arduino IDE, o compílalo con Arduino CLI y el FQBN correspondiente.
 
-El exportador valida conexiones, tipos, parámetros y GPIO. Genera código de los 58 tipos escalares originales, incluido filtro, PID y memoria; también expande subVIs escalares. Los bloques de lotes, ADC DMA e I²C multibyte requieren el motor conectado y no se exportan como sketch autónomo en 0.2. Las dependencias se resuelven antes de emitir el código. No ejecuta texto de etiquetas como código.
+El exportador valida conexiones, tipos, parámetros y GPIO. Genera código de los 58 tipos escalares originales, incluido filtro, PID y memoria, más Bitwise Ops, XY y Display multímetro; también expande subVIs escalares. Los bloques de lotes, ADC DMA, I²C multibyte y los nuevos DAC/PCNT/Touch/Tone requieren el motor conectado y no se exportan como sketch autónomo en 0.3. Las dependencias se resuelven antes de emitir el código. No ejecuta texto de etiquetas como código.
 
 Los sliders, controles de texto e interruptores quedan fijados al valor exportado. Gráficas, indicadores y registros se convierten en líneas `tiempo,id,valor` por Serial. El sketch corre continuamente desde el arranque, **sin el watchdog de conexión del firmware puente**. Ante errores numéricos/I²C/PWM entra en un bucle de fallo y lleva sus salidas GPIO/PWM a LOW. Para volver al control desde FlowLab debes cargar nuevamente el firmware puente.
 
@@ -228,11 +228,11 @@ node scripts/make-examples.mjs
 
 Para construir el portable desde el código fuente, ejecuta `scripts/build-windows.ps1` en PowerShell. Requiere conexión a PyPI para descargar dependencias de compilación. El resultado queda en `work/dist/FlowLab`. Conserva avisos de terceros al redistribuir; el paquete entregado los incluye.
 
-El informe `VALIDACION.md` registra lo probado en esta entrega. La compilación y prueba física del firmware se distinguen de las pruebas con un puerto simulado. El workflow `.github/workflows/ci.yml` está preparado para ejecutarse al publicar el proyecto en GitHub; no implica que ya se haya ejecutado remotamente.
+El informe `VALIDACION.md` registra lo probado en esta entrega. La compilación y prueba física del firmware se distinguen de las pruebas con un puerto simulado. Los resultados de la suite Windows/Ubuntu y de compilación ESP32 se enlazan desde `VALIDACION.md`. Las pruebas físicas de periféricos continúan pendientes.
 
 ## Alcance pendiente
 
-No implementado en 0.2: compatibilidad de archivos LabVIEW, módulos con múltiples puertos o referencias externas, matrices/clusters, estructuras gráficas de bucles/casos, ejecución distribuida, drivers VISA/SCPI/DAQmx, FFT/espectro, streaming ADC continuo sin huecos, buses SPI/UART adicionales, drivers específicos de sensores, BLE, MQTT, TCP, Wi-Fi/OTA, Modbus, CAN/TWAI, depuración con breakpoints, compilación ESP-IDF directa, FPGA, instalador firmado, actualizaciones automáticas y soporte para todas las variantes ESP32.
+No implementado en 0.3: compatibilidad de archivos LabVIEW, módulos con múltiples puertos o referencias externas, matrices/clusters, estructuras gráficas de bucles/casos, ejecución distribuida, drivers VISA/SCPI/DAQmx, streaming ADC continuo sin huecos, buses SPI/UART adicionales, drivers específicos de sensores, BLE, MQTT, TCP, Wi-Fi/OTA, Modbus, CAN/TWAI, depuración con breakpoints, compilación ESP-IDF directa, FPGA, instalador firmado, actualizaciones automáticas y soporte para todas las variantes ESP32.
 
 Próximas etapas razonables: validar y caracterizar DMA/trigger en las cinco familias; ampliar conectores de subVIs; añadir frames binarios y streaming continuo; agregar drivers de instrumentos; ampliar transportes ESP32; mejorar el empaquetado y construir una matriz de pruebas eléctricas. No hay fechas ni equivalencia comercial prometidas.
 
@@ -242,4 +242,4 @@ En el inspector hay ejemplos de **Ráfaga ADC**, **Subdiagrama** e **I²C multib
 
 Para usar USB directamente desde Chrome/Edge, elige **Dispositivos → Transporte → WebSerial**. La placa debe tener el firmware nuevo instalado. Con el fuente puedes ejecutar `INICIAR-WEBSERIAL.cmd`: usa Node.js como servidor estático, sin Python ni proxy serie. Abre `http://127.0.0.1:8766`. También funciona la carpeta web servida en la raíz de HTTPS.
 
-El portable se entrega en una carpeta nueva para conservar la versión anterior. Antes de cerrar una sesión 0.1, exporta tu proyecto JSON y ábrelo en 0.2. No reemplaces `_internal` de un ejecutable que está en funcionamiento.
+El portable se entrega en una carpeta nueva para conservar la versión anterior. Antes de cerrar una sesión 0.1, exporta tu proyecto JSON y ábrelo en 0.3. No reemplaces `_internal` de un ejecutable que está en funcionamiento.

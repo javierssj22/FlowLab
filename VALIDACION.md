@@ -5,7 +5,10 @@
 - Pruebas de estadísticas, Int16, máscaras/desplazamientos, multímetro y buffer XY.
 - Los cuatro ejemplos nuevos validan y simulan en las cinco familias.
 - Contratos de los nuevos periféricos probados con transporte simulado; no hay una placa conectada para verificar mediciones, watchdog o señal física.
-- La compilación del firmware para las cinco familias y la suite Windows/Linux se verifican mediante Actions. Los resultados 0.3 se registrarán tras ejecutarse.
+- [Actions 35667894947](https://github.com/javierssj22/FlowLab/actions/runs/35667894947): 7/7 trabajos aprobados sobre el código 4988bce: suite Windows y Ubuntu 22.04, instalación offline Linux y smoke test, firmware puente y sketch de ejemplo compilados para ESP32/S2/S3/C3/C6 con Arduino-ESP32 3.3.5.
+- Portable Windows 0.3 construido con PyInstaller 6.22.0/Python 3.14.3 y probado: arranque, HTTP, versión, módulos nuevos y WebSocket autenticado.
+- Verificación de interfaz: FFT con eje Hz y resolución 19,531 Hz; Int16 FF9C → −1,0000 °C; XY dibuja una elipse y retiene los puntos tras STOP. Sin errores de consola observados.
+- No se dispone de prueba USB con placas físicas. El paquete Linux es fuente Python con dependencias offline; no se presenta como ELF nativo.
 - La siguiente sección conserva el registro histórico de 0.2.
 
 # Validación de FlowLab 0.2 — 2026-09-20

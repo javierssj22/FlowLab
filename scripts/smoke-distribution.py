@@ -48,7 +48,7 @@ def check(command):
             ws.send(json.dumps({'id': 2, 'op': 'status', 'args': {}}))
             value = json.loads(ws.recv(timeout=5))
             assert value['ok'] and not value['value']['connected']
-        for asset in ('app.mjs', 'core.mjs', 'transports.mjs', 'data.mjs', 'project-store.mjs'):
+        for asset in ('app.mjs', 'core.mjs', 'transports.mjs', 'data.mjs', 'project-store.mjs', 'signals.mjs', 'serial-protocol.mjs'):
             with urllib.request.urlopen(base + '/' + asset, timeout=5) as response:
                 assert response.status == 200 and 'javascript' in response.headers['Content-Type']
         print('OK: arranque, version, WebSocket autenticado y modulos. No se abrio ningun puerto USB.')
