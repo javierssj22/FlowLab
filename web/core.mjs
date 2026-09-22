@@ -79,7 +79,7 @@ export const TYPES = {
   gauge: def('Indicador numérico', 'Instrumentos', '◴', ['in'], 'number', {unit:{type:'text',label:'Unidad',value:'V'}, min:num('Mínimo',0), max:num('Máximo',5)}, 'Lectura numérica e indicador de rango en el panel frontal.'),
   led: def('LED de estado', 'Instrumentos', '●', [input('in','boolean')], 'boolean', {}, 'Indicador booleano en el panel frontal.'),
   textIndicator: def('Indicador de texto', 'Instrumentos', 'abc', [input('in','string')], 'string', {}, 'Muestra texto en el panel frontal.'),
-  log: def('Registro de datos', 'Instrumentos', '≡', ['in'], 'number', {unit:{type:'text',label:'Unidad',value:''}}, 'Registra tiempo y valor. Exportación CSV desde la barra inferior.'),
+  log: def('Registro de datos', 'Instrumentos', '≡', ['in'], 'number', {unit:{type:'text',label:'Unidad',value:''}}, 'Registra tiempo y valor. Exportación CSV desde Proyecto → Datos y diagnóstico.'),
   adc: def('ESP32 · ADC', 'ESP32', 'A', [], 'integer', {pin:num('GPIO',34,0,54,1), mode:opt('Lectura','raw',['raw','millivolts'])}, 'Lee ADC de 12 bits o milivoltios calibrados por Arduino.'),
   digitalRead: def('ESP32 · Entrada digital', 'ESP32', 'D↓', [], 'boolean', {pin:num('GPIO',27,0,54,1), pull:opt('Resistencia','none',['none','up','down'])}, 'Lee GPIO con resistencia interna opcional.'),
   digitalWrite: def('ESP32 · Salida digital', 'ESP32', 'D↑', [input('in','boolean')], 'boolean', {pin:num('GPIO',25,0,54,1)}, 'Escribe HIGH o LOW. En simulación no toca el hardware.'),

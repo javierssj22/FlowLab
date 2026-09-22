@@ -6,7 +6,7 @@ import sys
 import tarfile
 
 root = Path(__file__).resolve().parent.parent
-destination = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else root.parent / 'FlowLab-0.3-Linux.tar.gz'
+destination = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else root.parent / 'FlowLab-0.4.1-Linux.tar.gz'
 if root in destination.parents:
     raise SystemExit('El archivo de salida debe quedar fuera del directorio fuente.')
 excluded = {'__pycache__', '.git', '.venv', '.venv-linux', 'work', 'node_modules'}

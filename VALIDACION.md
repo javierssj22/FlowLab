@@ -1,3 +1,13 @@
+# Validación de FlowLab 0.4.1 — 2026-09-21
+
+- 53 pruebas JavaScript y 24 Python aprobadas localmente en Windows.
+- Búsqueda: alias, acentos, múltiples términos y resultados vacíos; inserción independiente del ajuste de posición de la ventana; atajos que respetan controles, modificadores e IME.
+- Navegador: ejecución/parada, cambio Diagrama/Panel, búsqueda e inserción, inspector contextual, cierre conservando selección, deshacer y error persistente de hardware desconectado.
+- Mismo frontend para Windows y Linux; firmware/protocolo 3 y proyectos existentes conservados.
+- Las pruebas con puerto simulado y el smoke test HTTP/WebSocket no sustituyen mediciones ni conexión USB física.
+- La especificación metrológica 0.4 sigue pendiente; esta entrega valida el rediseño de interfaz.
+- Debajo se conserva la validación histórica de 0.3 y 0.2.
+
 # Validación de FlowLab 0.3
 
 - 50 pruebas JavaScript y 24 Python aprobadas localmente en Windows.

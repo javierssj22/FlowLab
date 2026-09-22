@@ -1,5 +1,15 @@
 # 0.3.0 — 2026-09-21
 
+## 0.4.1 — 2026-09-21
+
+- Interfaz Canvas-First compartida entre Windows y Linux: barra única, buscador contextual y parámetros solo con selección.
+- Spotlight: Espacio, /, doble clic y menú contextual; búsqueda con alias y acentos, navegación por teclado e inserción en coordenadas del cursor.
+- Panel frontal independiente del cableado; edición de instrumentos bajo demanda.
+- Proyecto, ejemplos, exportaciones, diagnóstico, firmware e I²C en ventanas y opciones desplegables.
+- Errores persistentes, estado Ejecutar/Detener y protección de edición mientras se detienen las salidas.
+- Paquetes portable Windows, Linux con dependencias offline y Linux nativo x86_64; README y guía de Linux actualizados.
+- Se mantienen los 80 bloques y el protocolo de hardware 3. La especificación DAQ/metrología 0.4 no cambia de estado por esta versión de interfaz.
+
 - Diez nuevos tipos de bloque, 80 en total; Vector Index conserva compatibilidad.
 - FFT calibrada por ventana, estadísticas de waveform, Int16 y operaciones I32.
 - Protocolo 3 con DAC, PCNT, Touch y Tone por capacidades de familia.

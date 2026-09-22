@@ -1,6 +1,6 @@
-# FlowLab 0.4.1 — propuesta Canvas-First
+# FlowLab 0.4.1 — diseño Canvas-First
 
-Estado: especificación de UX y arquitectura frontend. Base inspeccionada: `web/index.html`, `web/style.css` y `web/app.mjs` de la aplicación funcional 0.3. La especificación metrológica 0.4 es un documento de diseño; esta propuesta de interfaz no presupone que sus funciones ya estén implementadas. No modifica el runtime, el protocolo de dispositivo ni la versión de la release actual.
+Estado: diseño de referencia; la interfaz Canvas-First está implementada en 0.4.1. La guía de uso y alcance vigente está en [PAQUETE-0.4.1.md](PAQUETE-0.4.1.md). Este documento conserva los wireframes y la propuesta original, incluidos detalles de evolución. Base inspeccionada: `web/index.html`, `web/style.css` y `web/app.mjs` de la aplicación funcional 0.3. La especificación metrológica 0.4 es un documento de diseño; esta propuesta de interfaz no presupone que sus funciones ya estén implementadas. No modifica el runtime, el protocolo de dispositivo ni la versión de la release actual.
 
 ## 1. Objetivo y reglas de visibilidad
 

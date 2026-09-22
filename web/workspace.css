@@ -1,0 +1,103 @@
+/* Shared Windows/Linux canvas-first workspace. Legacy styles cover instruments. */
+body {min-width:0;display:grid;grid-template-rows:56px minmax(0,1fr);height:100dvh}
+.topbar {height:auto;min-width:0;display:flex;justify-content:space-between;gap:12px;padding:8px 16px}
+.view-switch {display:flex;border:1px solid var(--line);border-radius:8px;padding:2px}
+.view-switch button {border:0;background:transparent;color:var(--muted)}
+.view-switch .active {background:#303945;color:var(--text)}
+.mode-control {margin:0;min-width:0;gap:2px}
+.mode-control select {max-width:none;font-size:12px;color:var(--text);padding:8px 4px}
+#hardware-status {display:flex;gap:6px;align-items:center;background:transparent;border-color:transparent;padding:8px 4px;font-size:11px}
+#execute {min-width:118px}
+#execute.is-running {background:#4b2d2c;color:#ffc1b4;border-color:#97665d}
+#project-menu {background:transparent;border-color:transparent}
+.app-layout {display:block;position:relative;min-height:0;height:auto;min-width:0}
+.app-layout>.view {height:100%;min-height:0}
+.diagram-view {background-size:24px 24px;background-image:radial-gradient(#8993a128 1px,transparent 1px)}
+.wire {opacity:.9;stroke-width:2.5}
+.wire.vector,.wire.waveform {stroke-width:4}
+.canvas-context {position:absolute;left:16px;top:16px;display:flex;gap:8px;pointer-events:none}
+.canvas-context button {pointer-events:auto;background:#1b2027eb;box-shadow:0 3px 16px #0002}
+.canvas-context kbd {margin-left:8px;color:var(--muted)}
+.inspector,.inspector.mobile-open {position:absolute;display:flex;right:16px;top:16px;bottom:auto;width:min(320px,calc(100% - 32px));max-height:calc(100% - 32px);z-index:6;border:1px solid #46505e;border-radius:10px;box-shadow:0 16px 60px #0006}
+.inspector .section-heading {padding:12px 18px;align-items:center}
+.section-heading button {padding:2px 7px;background:transparent;border:0;font-size:20px}
+.inspector label {font-size:12px}
+.inspector input,.inspector select {font-size:13px}
+.inspector #inspector-content {padding-bottom:18px}
+.panel-view {padding:20px 24px 40px;background:#12171c}
+.panel-context {display:flex;align-items:center;gap:12px;min-height:28px;margin-bottom:16px}
+.panel-context>span:last-child {font-size:11px;color:var(--muted)}
+.panel-context .pill {font-size:9px;border:0;background:transparent;padding:0;color:var(--muted)}
+.instrument-grid {grid-template-columns:repeat(2,minmax(0,1fr));max-width:1500px;margin:auto;gap:20px}
+.instrument {padding:22px;border-color:#303945;box-shadow:0 6px 24px #0002}
+.instrument h3[data-panel-drag] {cursor:default}
+.editing-panel .instrument h3[data-panel-drag] {cursor:move}
+.instrument .small {line-height:1.4}
+dialog {width:min(640px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);padding:28px;overflow:auto;scrollbar-width:thin}
+dialog h1 {font-size:22px;margin:0 34px 24px 0}
+dialog h1 small {color:var(--muted);font-size:13px}
+dialog details {margin:12px 0;border-top:1px solid var(--line);padding-top:12px}
+dialog summary {cursor:pointer;padding:8px 0;color:var(--text)}
+.menu-actions {display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.menu-actions label {display:flex;align-items:center;gap:10px}
+.menu-actions label select {margin:0;width:auto}
+.examples {border:0;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.examples .section-heading {display:none}
+.examples button {font-size:12px;padding:10px;margin:0;width:100%}
+.examples button>span {font-size:12px}
+.examples small {font-size:10px}
+#saved {max-width:none;margin:8px 0;font-size:11px}
+#project-name {width:100%}
+#connection-hint {line-height:2.5}
+#hardware-dialog {width:min(720px,calc(100vw - 32px))}
+.device-grid {display:block}
+.device-card {border:0;padding:0;background:transparent}
+.device-card .card-title {display:none}
+.device-advanced .device-card {padding:12px 0}
+#diagnostics-dialog {width:min(900px,calc(100vw - 32px))}
+.monitor {height:auto;min-height:250px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.monitor-header {height:auto;min-height:46px;flex-wrap:wrap;padding:10px}
+.monitor-header>div:last-child {max-width:100%;flex-wrap:wrap;overflow:visible}
+.monitor-header button {font-size:11px}
+.monitor-body {height:210px}
+.monitor-stats {width:175px}
+#console {position:relative;top:auto;max-height:260px;min-height:100px}
+#spotlight {position:fixed;z-index:12;border:1px solid #536071;border-radius:12px;background:#1a2028;box-shadow:0 20px 80px #0009;overflow:hidden}
+#spotlight .search {margin:0;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:7px 16px;gap:12px}
+#search {font-size:14px;padding:9px 0;background:transparent;outline:none}
+#palette {max-height:288px;overflow:auto;scrollbar-width:thin}
+#palette button {width:100%;height:48px;display:flex;gap:10px;align-items:center;text-align:left;border:0;border-radius:0;background:transparent;padding:5px 14px}
+#palette button[aria-selected=true],#palette button:hover {background:#303c4b}
+#palette button>span:nth-child(2) {min-width:0;flex:1}
+#palette strong {font-size:12px;font-weight:550;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#palette small {font-size:10px;color:#a3b1c1;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:3px}
+.result-type {font:9px var(--mono)}
+.spotlight-help {padding:10px 14px;display:flex;justify-content:space-between;gap:10px;font-size:10px;color:var(--muted);border-top:1px solid var(--line)}
+.no-results {padding:18px;margin:0;font-size:12px}
+#error-banner {position:absolute;bottom:16px;left:16px;right:16px;z-index:9;background:#3c2527;border:1px solid #986269;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 24px #0005}
+#error-message {flex:1;white-space:pre-line;font-size:12px;max-height:160px;overflow:auto}
+#dismiss-error {background:transparent;border:0;font-size:18px}
+#toast {bottom:20px;max-width:calc(100vw - 32px);width:max-content}
+:focus-visible {outline:2px solid var(--accent);outline-offset:3px}
+input:focus-visible,select:focus-visible {outline:2px solid var(--accent)}
+[hidden] {display:none!important}
+@media(max-width:760px) {
+  body {grid-template-rows:96px minmax(0,1fr)}
+  .topbar {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;padding:6px 12px}
+  .view-switch {grid-column:1;grid-row:1;width:max-content}
+  .view-switch button {font-size:12px;padding:7px 10px}
+  .mode-control {grid-column:1;grid-row:2;justify-content:flex-start}
+  #execute {grid-column:2;grid-row:1;min-width:108px}
+  #project-menu {grid-column:2;grid-row:2}
+  .mode-control select {font-size:12px;max-width:180px}
+  .panel-view {padding:16px 12px}
+  .instrument-grid {grid-template-columns:1fr}
+  dialog {padding:22px 18px}
+  .examples {grid-template-columns:1fr}
+  .monitor-body {height:260px;flex-direction:column}
+  .monitor-body>canvas {height:160px;flex:none;width:100%}
+  .monitor-stats {width:100%;padding:10px;border-top:1px solid var(--line)}
+  .monitor-stats>strong {display:inline-block;margin:0 12px}
+  #error-banner {left:8px;right:8px;bottom:8px;padding:8px;flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce) {*,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}}

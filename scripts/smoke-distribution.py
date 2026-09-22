@@ -38,7 +38,7 @@ def check(command):
             raise RuntimeError('Timeout de arranque.')
         with urllib.request.urlopen(base + '/api/status', timeout=5) as response:
             status = json.load(response)
-        assert status['version'] == '0.3.0' and status['wsUrl']
+        assert status['version'] == '0.4.1' and status['wsUrl']
         with urllib.request.urlopen(base + '/', timeout=5) as response:
             html = response.read().decode()
         token = re.search(r'name="flowlab-token" content="([^"]+)"', html).group(1)

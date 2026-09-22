@@ -281,7 +281,7 @@ def toolchain(action, board, port=None):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "FlowLab/0.3"
+    server_version = "FlowLab/0.4.1"
 
     def log_message(self, fmt, *args):
         if len(args) > 1 and str(args[1]).startswith(("4", "5")):
@@ -325,7 +325,7 @@ class Handler(BaseHTTPRequestHandler):
             # Avoid waiting on the bridge lock while the compiler runs.
             with JOB_LOCK:
                 busy = JOB["running"]
-            self.send_data({"version": "0.3.0", "wsUrl": f'ws://127.0.0.1:{WS_PORT}' if WS_PORT else None, "serialInstalled": serial is not None,
+            self.send_data({"version": "0.4.1", "wsUrl": f'ws://127.0.0.1:{WS_PORT}' if WS_PORT else None, "serialInstalled": serial is not None,
                             "arduinoCli": arduino_cli() is not None,
                             "bridge": {"connected": False} if busy else BRIDGE.status(), "toolchainBusy": busy})
         elif path == "/api/ports":
@@ -402,7 +402,7 @@ def main():
     except ImportError:
         print('WebSocket no instalado; instala requirements.txt o usa WebSerial.', flush=True)
     url = f"http://127.0.0.1:{server.server_address[1]}"
-    print(f"FlowLab 0.3.0 · {url}\nCtrl+C para cerrar.", flush=True)
+    print(f"FlowLab 0.4.1 · {url}\nCtrl+C para cerrar.", flush=True)
     if not args.no_browser:
         threading.Timer(0.6, functools.partial(webbrowser.open, url)).start()
     try:

@@ -1,4 +1,4 @@
-# FlowLab 0.3 — laboratorio visual abierto
+# FlowLab 0.4.1 — laboratorio visual abierto
 
 FlowLab permite construir y ejecutar diagramas de flujo de datos, observar señales y controlar un ESP32. Está pensado para Windows y Linux y funciona localmente, sin cuenta ni nube. Licencia MIT, código completo y firmware incluidos.
 
@@ -8,9 +8,11 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 
 **Diseño de 0.4:** [especificación de metrología, instrumentación y ensayos](docs/ESPECIFICACION-0.4.md), con canales DAQ calibrados, Probe, protocolo 4, streaming y sincronización. Es una propuesta técnica; estas funciones todavía no forman parte de la versión publicada.
 
-**Diseño de interfaz 0.4.1 para Windows y Linux:** [propuesta Canvas-First](docs/UX-0.4.1.md), con wireframes, buscador flotante, barra única, inspector contextual y cambios concretos de HTML/CSS/JS. Ambos sistemas compartirán el mismo frontend; consulta las [adaptaciones Linux de conexión, archivos y teclado](docs/UX-0.4.1.md#12-aplicación-del-diseño-en-linux). Documento de diseño; el rediseño aún no está aplicado a la interfaz publicada.
+**Interfaz 0.4.1 implementada para Windows y Linux:** lienzo a pantalla completa, buscador flotante con Espacio, `/` o doble clic, cuatro grupos en la barra superior e inspector contextual. Proyecto, ejemplos, diagnóstico y conexión USB aparecen a pedido. Consulta [la guía de uso 0.4.1](docs/PAQUETE-0.4.1.md).
 
 **Arquitectura base 0.2:** WebSocket, captura ADC DMA con trigger, Vector/Waveform, subdiagramas, archivos de proyecto, I²C multibyte y WebSerial directo. La explicación técnica y los límites están en [docs/ARQUITECTURA-0.2.md](docs/ARQUITECTURA-0.2.md).
+
+*Captura histórica de la interfaz 0.3; la distribución actual usa Canvas-First.*
 
 <img width="1533" height="696" alt="image" src="https://github.com/user-attachments/assets/b3df6344-da90-4781-8f01-ca82b9e209f8" />
 
@@ -21,16 +23,18 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 |---|---|---|---|
 | 0.3 | Portable x64 con Python incluido | Aplicación Python con dependencias offline | [Release disponible](https://github.com/javierssj22/FlowLab/releases/tag/v0.3.0) |
 | 0.4 | DAQ/metrología sobre arquitectura compartida | Mismo alcance previsto | [Especificación técnica](docs/ESPECIFICACION-0.4.md), pendiente de implementación |
-| 0.4.1 | Interfaz Canvas-First | Mismo frontend, adaptación USB/archivos/teclado | [Propuesta de UX](docs/UX-0.4.1.md), pendiente de implementación |
+| 0.4.1 | Portable x64 e interfaz Canvas-First | Paquete Python offline y ejecutable x86_64 | [Release](https://github.com/javierssj22/FlowLab/releases/tag/v0.4.1), interfaz implementada |
 
-[Windows 0.3](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/FlowLab-0.3-Windows.zip) · [Linux 0.3](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/FlowLab-0.3-Linux.tar.gz) · [Fuentes 0.3](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/FlowLab-0.3-Source.zip) · [SHA-256](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/SHA256SUMS-0.3.txt).
+[Windows 0.4.1](https://github.com/javierssj22/FlowLab/releases/download/v0.4.1/FlowLab-0.4.1-Windows.zip) · [Linux Python 0.4.1](https://github.com/javierssj22/FlowLab/releases/download/v0.4.1/FlowLab-0.4.1-Linux.tar.gz) · [Fuentes 0.4.1](https://github.com/javierssj22/FlowLab/releases/download/v0.4.1/FlowLab-0.4.1-Source.zip) · [SHA-256](https://github.com/javierssj22/FlowLab/releases/download/v0.4.1/SHA256SUMS-0.4.1.txt).
+
+[Linux nativo x86_64](https://github.com/javierssj22/FlowLab/releases/download/v0.4.1/FlowLab-0.4.1-Linux-x86_64-native.tar.gz): extrae el archivo y ejecuta `./FlowLab/FlowLab`. Incluye Python; conserva `_internal`. Se construye y prueba en Ubuntu 22.04. No es AppImage ni un binario ARM64.
 
 ## Inicio rápido en Linux
 
 Necesitas Python 3.10+ con `venv`. En Debian/Ubuntu, si faltan: `sudo apt install python3 python3-venv`. Descarga el paquete Linux anterior y ejecuta desde su carpeta:
 
 ```sh
-tar -xzf FlowLab-0.3-Linux.tar.gz
+tar -xzf FlowLab-0.4.1-Linux.tar.gz
 cd FlowLab
 sh instalar-linux.sh
 sh start.sh
@@ -47,17 +51,17 @@ sh instalar-linux.sh
 sh start.sh
 ```
 
-En la aplicación 0.3, abre **Dispositivos** para conectar el ESP32. Elige el puerto enumerado, por ejemplo `/dev/ttyUSB0` o `/dev/ttyACM0`; los nombres COM corresponden a Windows. WebSocket usa el puente Python; WebSerial es opcional si el navegador ofrece esa API. Si falta permiso USB, consulta la [guía Linux](docs/LINUX.md#esp32-por-usb); no hace falta ejecutar FlowLab como root.
+En la aplicación 0.4.1, selecciona **ESP32 Hardware** y pulsa **Conectar** para conectar el ESP32. Elige el puerto enumerado, por ejemplo `/dev/ttyUSB0` o `/dev/ttyACM0`; los nombres COM corresponden a Windows. WebSocket usa el puente Python; WebSerial es opcional si el navegador ofrece esa API. Si falta permiso USB, consulta la [guía Linux](docs/LINUX.md#esp32-por-usb); no hace falta ejecutar FlowLab como root.
 
-Linux comparte los mismos 80 bloques, ejemplos, panel frontal y firmware de Windows. La suite de software, instalación offline y arranque HTTP/WebSocket pasaron en [Ubuntu 22.04 mediante Actions](https://github.com/javierssj22/FlowLab/actions/runs/35667894947). Las pruebas USB físicas y del nuevo diseño 0.4.1 continúan pendientes.
+Linux comparte los mismos 80 bloques, ejemplos, panel frontal y firmware de Windows. La suite de software, instalación offline y arranque HTTP/WebSocket pasaron en [Ubuntu 22.04 mediante Actions](https://github.com/javierssj22/FlowLab/actions/runs/35667894947). La interfaz 0.4.1 se comprueba en navegador; las pruebas USB físicas continúan pendientes.
 
-La [guía Linux](docs/LINUX.md) incluye puertos alternativos, WebSerial sin Python, guardado JSON y construcción opcional de un ejecutable nativo. La interfaz minimalista descrita para 0.4.1 se aplicará al mismo código web en ambas plataformas cuando se implemente.
+La [guía Linux](docs/LINUX.md) incluye puertos alternativos, WebSerial sin Python, guardado JSON y construcción opcional de un ejecutable nativo. La interfaz minimalista 0.4.1 ya usa el mismo HTML/CSS/JavaScript en ambas plataformas.
 
 ## Inicio rápido en Windows
 
 ### Paquete portable
 
-1. Extrae **todo** el ZIP `FlowLab-0.3-Windows.zip` en una carpeta con permisos de escritura.
+1. Extrae **todo** el ZIP `FlowLab-0.4.1-Windows.zip` en una carpeta con permisos de escritura.
 2. Dentro de `FlowLab`, ejecuta `FlowLab.exe`. Conserva `_internal` junto al ejecutable.
 3. Se abre el navegador en `http://127.0.0.1:8765`.
 4. Pulsa **Ejecutar** en el ejemplo Banco de señales. Abre **Panel frontal** para ver los instrumentos.
@@ -106,7 +110,7 @@ Si el puerto 8765 está ocupado, cierra la instancia anterior o usa otro puerto.
 
 ## Uso del editor
 
-1. Agrega un bloque con un clic en la biblioteca.
+1. Sobre el diagrama, pulsa **Espacio**, **/** o haz doble clic en el fondo. Escribe el nombre del bloque y pulsa **Enter**; también puedes usar **＋ Bloque** y elegir con el mouse.
 2. Arrastra su encabezado para colocarlo. Arrastra el fondo para desplazar el lienzo; la rueda cambia el zoom.
 3. Haz clic en el puerto de salida de un bloque y después en una entrada de otro. Naranja = decimal (DBL); azul = entero (I32); verde = booleano; rosa = texto; violeta = vector; cian = waveform. Los tipos figuran también en los bloques. Un entero puede alimentar una entrada decimal; otras conversiones requieren bloques explícitos.
 4. Una salida puede conectarse a varias entradas. Una entrada admite una fuente; al reconectarla se reemplaza la anterior.
@@ -114,7 +118,7 @@ Si el puerto 8765 está ocupado, cierra la instancia anterior o usa otro puerto.
 6. Pulsa **Ejecutar**. El modo inicial siempre es **Simulación**. Para un circuito real, selecciona explícitamente **ESP32 · Hardware**.
 7. **Detener** termina el ciclo en curso de forma controlada y envía `stop` al puente. Las salidas GPIO y PWM del puente pasan a LOW.
 
-Atajos: `Ctrl+S` guarda un archivo; `Ctrl+Z` deshace; `Ctrl+Y` o `Ctrl+Shift+Z` rehace; `Supr` elimina la selección; `Esc` cancela conexión/selección; `/` enfoca la búsqueda.
+Atajos: `Ctrl+S` guarda un archivo; `Ctrl+Z` deshace; `Ctrl+Y` o `Ctrl+Shift+Z` rehace; `Supr` elimina la selección; `Esc` cancela conexión/selección; `Espacio` o `/` abre la búsqueda en el cursor; `↑/↓` elige un resultado y `Enter` lo inserta. Los atajos no interceptan campos de texto ni controles.
 
 La estructura del grafo se bloquea durante ejecución. Los sliders, controles de texto e interruptores del panel frontal sí pueden modificarse en vivo. Usa **Guardar** o **Guardar copia** para conservar versiones. Los permisos de la carpeta/cuenta Windows determinan quién puede acceder a ellas. Abrir un ejemplo o crear un proyecto se puede deshacer mientras la aplicación permanece abierta.
 
@@ -147,7 +151,7 @@ El navegador y Windows no garantizan tiempo real. Al quedar una pestaña en segu
 
 ## Panel frontal y CSV
 
-El panel se construye a partir de los instrumentos y controles del diagrama. Puedes agregar controles e instrumentos desde la biblioteca mientras estás en el panel: se crea también su terminal en el diagrama. Pulsa **Editar panel** para arrastrar los títulos y dimensionar las tarjetas desde la esquina inferior. **Terminar edición** conserva la disposición; posición y tamaño se guardan en el proyecto y admiten deshacer. **Orden automático** restaura la distribución automática, también reversible. Las gráficas escalares muestran las últimas 600 muestras; las waveform muestran el último lote de hasta 4096 muestras con su propio dt. El botón Waveform exporta ese lote completo en JSON. El monitor inferior sigue el bloque numérico seleccionado, o el primer osciloscopio disponible.
+El panel se construye a partir de los instrumentos y controles del diagrama. Agrega los controles e instrumentos desde el buscador del diagrama. Pulsa **Proyecto → Edición y vista → Editar panel** para arrastrar los títulos y dimensionar las tarjetas desde la esquina inferior. **Terminar edición** conserva la disposición; posición y tamaño se guardan en el proyecto y admiten deshacer. **Orden automático** restaura la distribución automática, también reversible. Las gráficas escalares muestran las últimas 600 muestras; las waveform muestran el último lote de hasta 4096 muestras con su propio dt. El botón Waveform exporta ese lote completo en JSON. **Proyecto → Datos y diagnóstico** abre el monitor y las exportaciones CSV, Waveform y Espectro JSON. No ocupa espacio mientras está cerrado.
 
 Los bloques **Registro de datos** generan filas mientras **REC** está activo. El CSV incluye `tiempo_s,nodo,nombre,valor,unidad`, codificación UTF-8 con BOM y separador coma. Conserva las últimas 20.000 filas en total, no por bloque. Los campos de texto que podrían interpretarse como fórmulas de planilla se neutralizan. Los valores se registran en memoria; no hay escritura continua a disco ni recuperación de datos tras cerrar la pestaña.
 
@@ -168,7 +172,7 @@ Estas descargas pertenecen a Arduino/Espressif y no están incluidas en el porta
 
 ### 2. Cargar el puente
 
-Conecta la placa mediante un cable USB de datos. En **Dispositivos**, selecciona la familia, actualiza los puertos y elige el COM correcto. **Compilar** verifica el firmware; **Compilar y cargar** además reemplaza el programa existente de esa placa. Se muestra el resultado de Arduino CLI en la salida del compilador. Cada operación tiene un límite de 15 minutos; la primera compilación puede ser lenta.
+Conecta la placa mediante un cable USB de datos. En **Proyecto → Conexión y firmware**, selecciona la familia, actualiza los puertos y elige el puerto COM o `/dev/ttyUSB*` / `/dev/ttyACM*` correcto. **Compilar** verifica el firmware; **Compilar y cargar** además reemplaza el programa existente de esa placa. Se muestra el resultado de Arduino CLI en la salida del compilador. Cada operación tiene un límite de 15 minutos; la primera compilación puede ser lenta.
 
 Alternativa manual desde la carpeta fuente:
 
@@ -181,7 +185,7 @@ Reemplaza COM5 por tu puerto. También puedes abrir `firmware/FlowLabBridge/Flow
 
 ### 3. Conectar y ejecutar
 
-Pulsa **Conectar placa**. El servidor abre a 115200 baudios, espera el reinicio y exige un handshake con protocolo 1 o 2 y familia coincidente; ráfagas e I²C multibyte requieren protocolo 2. Cierra otros monitores serie que estén usando el mismo puerto.
+Pulsa **Conectar placa**. El servidor abre a 115200 baudios, espera el reinicio y exige un handshake con protocolo 1, 2 o 3 y familia coincidente; ráfagas e I²C multibyte requieren protocolo 2 o 3, y DAC/PCNT/Touch/Tone requieren protocolo 3. Cierra otros monitores serie que estén usando el mismo puerto.
 
 Después abre un ejemplo ADC o PWM y selecciona **ESP32 · Hardware**. En simulación, incluso los bloques ESP32 producen o consumen datos sintéticos sin escribir en la placa. Conectar una placa por sí solo no cambia el modo de ejecución.
 
@@ -197,7 +201,7 @@ Después abre un ejemplo ADC o PWM y selecciona **ESP32 · Hardware**. En simula
 
 Los perfiles son listas limitadas de pines del SoC, **no certificaciones de todas las placas comerciales**. La lista completa está en `boards.json`. GPIO 34–39 del ESP32 clásico son solo entrada y carecen de pull-up/down interno; flash, PSRAM o componentes de tu placa pueden ocupar otros GPIO del perfil, como 16/17 en algunos módulos. Revisa siempre el esquema de la placa. Usa 3,3 V; el firmware no proporciona aislamiento eléctrico ni adaptación de nivel.
 
-La configuración genérica utiliza `Serial`; las placas con conversor USB-UART se conectan por ese puerto. En placas con USB nativo que no muestran el protocolo, compila manualmente con la opción adecuada de USB CDC on boot en Arduino IDE para esa placa. FlowLab 0.3 no expone las opciones avanzadas del menú de cada FQBN.
+La configuración genérica utiliza `Serial`; las placas con conversor USB-UART se conectan por ese puerto. En placas con USB nativo que no muestran el protocolo, compila manualmente con la opción adecuada de USB CDC on boot en Arduino IDE para esa placa. FlowLab 0.4.1 no expone las opciones avanzadas del menú de cada FQBN.
 
 C2, C5, C61, H2 y P4 no tienen perfiles FlowLab en esta entrega. La [compatibilidad de Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/getting_started.html) no equivale por sí sola a compatibilidad validada de FlowLab.
 
@@ -216,9 +220,9 @@ La detención no revierte comandos ya enviados a periféricos I²C ni conoce el 
 
 ## Exportar a Arduino sin PC
 
-En **Dispositivos → Ejecución autónoma**, exporta `FlowLabStandalone.ino`. Guárdalo dentro de una carpeta llamada `FlowLabStandalone` y ábrelo en Arduino IDE, o compílalo con Arduino CLI y el FQBN correspondiente.
+En **Proyecto → Conexión y firmware → Ejecución autónoma**, exporta `FlowLabStandalone.ino`. Guárdalo dentro de una carpeta llamada `FlowLabStandalone` y ábrelo en Arduino IDE, o compílalo con Arduino CLI y el FQBN correspondiente.
 
-El exportador valida conexiones, tipos, parámetros y GPIO. Genera código de los 58 tipos escalares originales, incluido filtro, PID y memoria, más Bitwise Ops, XY y Display multímetro; también expande subVIs escalares. Los bloques de lotes, ADC DMA, I²C multibyte y los nuevos DAC/PCNT/Touch/Tone requieren el motor conectado y no se exportan como sketch autónomo en 0.3. Las dependencias se resuelven antes de emitir el código. No ejecuta texto de etiquetas como código.
+El exportador valida conexiones, tipos, parámetros y GPIO. Genera código de los 58 tipos escalares originales, incluido filtro, PID y memoria, más Bitwise Ops, XY y Display multímetro; también expande subVIs escalares. Los bloques de lotes, ADC DMA, I²C multibyte y los nuevos DAC/PCNT/Touch/Tone requieren el motor conectado y no se exportan como sketch autónomo en 0.4.1. Las dependencias se resuelven antes de emitir el código. No ejecuta texto de etiquetas como código.
 
 Los sliders, controles de texto e interruptores quedan fijados al valor exportado. Gráficas, indicadores y registros se convierten en líneas `tiempo,id,valor` por Serial. El sketch corre continuamente desde el arranque, **sin el watchdog de conexión del firmware puente**. Ante errores numéricos/I²C/PWM entra en un bucle de fallo y lleva sus salidas GPIO/PWM a LOW. Para volver al control desde FlowLab debes cargar nuevamente el firmware puente.
 
@@ -270,14 +274,14 @@ El informe `VALIDACION.md` registra lo probado en esta entrega. La compilación 
 
 ## Alcance pendiente
 
-No implementado en 0.3: compatibilidad de archivos LabVIEW, módulos con múltiples puertos o referencias externas, matrices/clusters, estructuras gráficas de bucles/casos, ejecución distribuida, drivers VISA/SCPI/DAQmx, streaming ADC continuo sin huecos, buses SPI/UART adicionales, drivers específicos de sensores, BLE, MQTT, TCP, Wi-Fi/OTA, Modbus, CAN/TWAI, depuración con breakpoints, compilación ESP-IDF directa, FPGA, instalador firmado, actualizaciones automáticas y soporte para todas las variantes ESP32.
+No implementado en 0.4.1: compatibilidad de archivos LabVIEW, módulos con múltiples puertos o referencias externas, matrices/clusters, estructuras gráficas de bucles/casos, ejecución distribuida, drivers VISA/SCPI/DAQmx, streaming ADC continuo sin huecos, buses SPI/UART adicionales, drivers específicos de sensores, BLE, MQTT, TCP, Wi-Fi/OTA, Modbus, CAN/TWAI, depuración con breakpoints, compilación ESP-IDF directa, FPGA, instalador firmado, actualizaciones automáticas y soporte para todas las variantes ESP32.
 
 Próximas etapas razonables: validar y caracterizar DMA/trigger en las cinco familias; ampliar conectores de subVIs; añadir frames binarios y streaming continuo; agregar drivers de instrumentos; ampliar transportes ESP32; mejorar el empaquetado y construir una matriz de pruebas eléctricas. No hay fechas ni equivalencia comercial prometidas.
 
 ## Funciones nuevas de 0.2
 
-En el inspector hay ejemplos de **Ráfaga ADC**, **Subdiagrama** e **I²C multibyte**. ADC DMA solicita 20–80 kS/s, con 16–4096 muestras, disparo inmediato o por flanco y pretrigger. La tasa es nominal y pendiente de medir en placa; transferencia y captura son fases separadas. No se permiten salidas GPIO/PWM armadas durante la ráfaga.
+En **Proyecto → Ejemplos** hay ejemplos de **Ráfaga ADC**, **Subdiagrama** e **I²C multibyte**. ADC DMA solicita 20–80 kS/s, con 16–4096 muestras, disparo inmediato o por flanco y pretrigger. La tasa es nominal y pendiente de medir en placa; transferencia y captura son fases separadas. No se permiten salidas GPIO/PWM armadas durante la ráfaga.
 
-Para usar USB directamente desde Chrome/Edge, elige **Dispositivos → Transporte → WebSerial**. La placa debe tener el firmware nuevo instalado. Con el fuente puedes ejecutar `INICIAR-WEBSERIAL.cmd`: usa Node.js como servidor estático, sin Python ni proxy serie. Abre `http://127.0.0.1:8766`. También funciona la carpeta web servida en la raíz de HTTPS.
+Para usar USB directamente desde Chrome/Edge, elige **Proyecto → Conexión y firmware → Transporte → WebSerial**. La placa debe tener el firmware nuevo instalado. Con el fuente puedes ejecutar `INICIAR-WEBSERIAL.cmd`: usa Node.js como servidor estático, sin Python ni proxy serie. Abre `http://127.0.0.1:8766`. También funciona la carpeta web servida en la raíz de HTTPS.
 
-El portable se entrega en una carpeta nueva para conservar la versión anterior. Antes de cerrar una sesión 0.1, exporta tu proyecto JSON y ábrelo en 0.3. No reemplaces `_internal` de un ejecutable que está en funcionamiento.
+El portable se entrega en una carpeta nueva para conservar la versión anterior. Antes de cerrar una sesión 0.1, exporta tu proyecto JSON y ábrelo en 0.4.1. No reemplaces `_internal` de un ejecutable que está en funcionamiento.
