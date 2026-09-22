@@ -14,7 +14,8 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 
 *Captura histórica de la interfaz 0.3; la distribución actual usa Canvas-First.*
 
-<img width="1533" height="696" alt="image" src="https://github.com/user-attachments/assets/b3df6344-da90-4781-8f01-ca82b9e209f8" />
+<img width="1531" height="692" alt="image" src="https://github.com/user-attachments/assets/1231fc4a-2b08-4a62-8a0b-a26d8e7cf4d0" />
+
 
 
 ## Descargas y estado de versiones
@@ -110,6 +111,9 @@ Si el puerto 8765 está ocupado, cierra la instancia anterior o usa otro puerto.
 
 ## Uso del editor
 
+<img width="1530" height="693" alt="image" src="https://github.com/user-attachments/assets/b1a0b9d3-23c3-4547-b670-2591e56b5371" />
+
+
 1. Sobre el diagrama, pulsa **Espacio**, **/** o haz doble clic en el fondo. Escribe el nombre del bloque y pulsa **Enter**; también puedes usar **＋ Bloque** y elegir con el mouse.
 2. Arrastra su encabezado para colocarlo. Arrastra el fondo para desplazar el lienzo; la rueda cambia el zoom.
 3. Haz clic en el puerto de salida de un bloque y después en una entrada de otro. Naranja = decimal (DBL); azul = entero (I32); verde = booleano; rosa = texto; violeta = vector; cian = waveform. Los tipos figuran también en los bloques. Un entero puede alimentar una entrada decimal; otras conversiones requieren bloques explícitos.
@@ -150,6 +154,9 @@ Cada **Ejecutar** inicia una sesión nueva y vacía trazas y filas CSV anteriore
 El navegador y Windows no garantizan tiempo real. Al quedar una pestaña en segundo plano, los temporizadores pueden ralentizarse. La máxima frecuencia del generador no es una garantía de ancho de banda: respeta la frecuencia de muestreo para evitar aliasing.
 
 ## Panel frontal y CSV
+
+<img width="1533" height="693" alt="image" src="https://github.com/user-attachments/assets/6afa0cd2-9a14-4de8-9238-8efdd40b1e61" />
+
 
 El panel se construye a partir de los instrumentos y controles del diagrama. Agrega los controles e instrumentos desde el buscador del diagrama. Pulsa **Proyecto → Edición y vista → Editar panel** para arrastrar los títulos y dimensionar las tarjetas desde la esquina inferior. **Terminar edición** conserva la disposición; posición y tamaño se guardan en el proyecto y admiten deshacer. **Orden automático** restaura la distribución automática, también reversible. Las gráficas escalares muestran las últimas 600 muestras; las waveform muestran el último lote de hasta 4096 muestras con su propio dt. El botón Waveform exporta ese lote completo en JSON. **Proyecto → Datos y diagnóstico** abre el monitor y las exportaciones CSV, Waveform y Espectro JSON. No ocupa espacio mientras está cerrado.
 
