@@ -6,6 +6,8 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 
 **Nuevo en 0.3:** 80 tipos de bloque; FFT, Waveform Stats, Unpack Int16, Bitwise Ops, DAC, PCNT, Touch, Tone, Gráfica XY y Display multímetro. Incluye cuatro ejemplos nuevos y mantiene Vector Index compatible. Consulta [la guía 0.3](docs/PAQUETE-0.3.md) para uso, familias, protocolo 3 y límites.
 
+**Diseño de 0.4:** [especificación de metrología, instrumentación y ensayos](docs/ESPECIFICACION-0.4.md), con canales DAQ calibrados, Probe, protocolo 4, streaming y sincronización. Es una propuesta técnica; estas funciones todavía no forman parte de la versión publicada.
+
 **Arquitectura base 0.2:** WebSocket, captura ADC DMA con trigger, Vector/Waveform, subdiagramas, archivos de proyecto, I²C multibyte y WebSerial directo. La explicación técnica y los límites están en [docs/ARQUITECTURA-0.2.md](docs/ARQUITECTURA-0.2.md).
 
 <img width="1533" height="696" alt="image" src="https://github.com/user-attachments/assets/b3df6344-da90-4781-8f01-ca82b9e209f8" />
