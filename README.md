@@ -1,5 +1,8 @@
 # FlowLab 0.4.1 — laboratorio visual abierto
 
+<img width="1906" height="878" alt="flowlab_gif" src="https://github.com/user-attachments/assets/06aa0109-9627-435b-83cd-7e89d9c87414" />
+
+
 FlowLab permite construir y ejecutar diagramas de flujo de datos, observar señales y controlar un ESP32. Está pensado para Windows y Linux y funciona localmente, sin cuenta ni nube. Licencia MIT, código completo y firmware incluidos.
 
 **Esta entrega es una primera versión funcional, no una equivalencia completa con LabVIEW.** Incluye un motor, editor e integración serie reales. No abre archivos `.vi`, no emula los controladores NI y no ofrece tiempo real determinista. El apartado de alcance al final distingue lo implementado de lo pendiente.
