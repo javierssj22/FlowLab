@@ -478,3 +478,68 @@ Criterios de aceptación:
 10. Evaluación con estudiantes: localizar Ejecutar, añadir un bloque, conectar dos bloques, modificar un parámetro, pasar a Medir y guardar un ejemplo. Registrar éxito y errores antes/después; la mejora de usabilidad debe medirse, no inferirse solo del número de botones ocultos.
 
 Orden de aplicación: shell/topbar y reubicación de acciones → Spotlight y coordenadas → inspector contextual → panel de medición → modal hardware → pruebas de regresión, accesibilidad y tareas con estudiantes.
+
+## 12. Aplicación del diseño en Linux
+
+**La propuesta 0.4.1 cubre Windows y Linux con el mismo frontend.** Spotlight, inspector, barra única, instrumentos y atajos se implementan una sola vez bajo `web/`. Los lanzadores cambian por plataforma; no se crea una copia divergente de HTML/CSS/JS. Las prestaciones de P4 siguen sujetas a su implementación, independientemente del sistema operativo.
+
+### Experiencia compartida
+
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│ [Diagrama | Panel Frontal] [ESP32 · Conectar ▾] [▶ Ejecutar] [Proyecto ▾]│
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│                       EL MISMO LIENZO                                   │
+│                                                                        │
+│              ┌──────── Conectar ESP32 ────────────────┐                 │
+│              │ Familia  [ESP32-S3                  ▾] │                 │
+│              │ Enlace   [Puente local              ▾] │                 │
+│              │ Puerto   [/dev/ttyACM0 · USB Serial ▾] │                 │
+│              │                                       │                 │
+│              │ [Actualizar]               [Conectar] │                 │
+│              │ ▸ Firmware y diagnóstico              │                 │
+│              └───────────────────────────────────────┘                 │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+La ruta es un ejemplo de presentación, no un puerto que la aplicación deba asumir o abrir automáticamente. El selector utiliza exclusivamente los dispositivos enumerados por pyserial o elegidos por el usuario en WebSerial. No se persiste un nombre `/dev/ttyUSB0` como identidad fiable de una placa tras reconectarla.
+
+### Adaptaciones frontend y conexión
+
+| Aspecto | Comportamiento previsto en Linux |
+|---|---|
+| Barra, canvas, panel e inspector | mismo DOM, CSS y componentes de Windows |
+| Puertos | etiqueta «Puerto serie», nombres devueltos por backend; `/dev/ttyUSB*` y `/dev/ttyACM*` son habituales |
+| Ruta principal | `sh start.sh`: navegador → WebSocket local → pyserial → ESP32 |
+| Ruta sin Python | `sh start-webserial.sh`: interfaz estática con Node.js y WebSerial si está disponible |
+| Guardado | selector nativo del navegador si existe File System Access; alternativa Abrir JSON/descargar copia |
+| Atajos | Ctrl+S, Ctrl+Z, Espacio, `/`, Esc; sin usar Super/Meta como requisito de Linux |
+| Ratón/trackpad | coordenadas del viewport, mismo zoom/pan; doble clic solo sobre fondo vacío |
+| Escala del escritorio | medidas CSS y canvas con devicePixelRatio; comprobar 100/125/150/200 % |
+| Ventanas GNOME/KDE | no depender de posiciones globales de pantalla ni de decoración del gestor de ventanas |
+
+La selección de funciones se hace por **capacidades**, no detectando la distribución o el user-agent. Comprobar `navigator.serial` y contexto seguro para USB directo, y existencia de pickers para guardado. La ruta WebSocket no requiere que el navegador pueda abrir un puerto USB. Web Serial está documentado para Chrome de escritorio en Linux; la petición de puerto debe originarse en un gesto del usuario. [Documentación de Chrome](https://developer.chrome.com/docs/capabilities/serial).
+
+Si el backend no está disponible y el navegador tampoco ofrece WebSerial, la simulación sigue funcionando: mostrar «Inicia el puente local para conectar una placa» únicamente al solicitar Hardware. No desplegar diagnóstico del sistema durante la clase en simulación. La ausencia de File System Access tampoco bloquea proyectos: se mantiene la importación/descarga JSON existente.
+
+### Estados de error del diálogo
+
+- **Sin dispositivos:** «No se detectaron puertos serie. Conecta la placa y actualiza». Diferenciarlo de acceso denegado; no presentar instrucciones de permisos si todavía no existe el puerto.
+- **Permiso denegado:** conservar el dispositivo y ofrecer «Ver ayuda de permisos USB» dentro del diálogo. La guía indica comprobar propietario/grupo; en Debian/Ubuntu suele ser dialout. No ejecutar sudo, modificar grupos/udev ni relanzar el navegador como root desde FlowLab.
+- **Puerto ocupado:** informar qué dispositivo falló y ofrecer Reintentar; no cerrar otros procesos ni monitores serie automáticamente.
+- **Desconexión:** conservar procedencia de la última captura, marcarla como retenida y detener según el motor. Reconectar no vuelve a ejecutar el flujo.
+- **Permiso del navegador cancelado:** regresar al diálogo sin añadir un error técnico a la consola ni cambiar silenciosamente de transporte.
+- **Arduino CLI ausente:** mostrarlo al desplegar Firmware; no impedir simulación ni conexión a una placa con firmware ya cargado. El backend usa PATH o `tools/arduino-cli`, con permiso de ejecución.
+
+El modal conserva orden y acciones independientemente de si se usa USB-UART o USB nativo. En WebSerial no hay un selector de rutas `/dev`: aparece el botón que invoca el picker del navegador. Los detalles Linux quedan en ayuda de diagnóstico, no en la barra ni en los instrumentos.
+
+### Distribución y aceptación Linux
+
+La versión ejecutable disponible sigue siendo **FlowLab 0.3** como paquete Python con wheels offline y lanzadores shell. El rediseño 0.4.1 se empaquetará con los mismos recursos `web/` tanto en Windows como en Linux cuando esté implementado. El README diferencia diseño y release; no se renombra un paquete 0.3 como 0.4.1 solo por actualizar esta documentación.
+
+El build nativo opcional se realiza en Linux mediante `scripts/build-linux.sh`; se preservan `_internal`, licencias y documentación. Compatibilidad de arquitectura y glibc se valida por artefacto. AppImage, DEB/RPM, Flatpak y ARM64 precompilado no se anuncian como entregables existentes.
+
+Matriz propuesta de aceptación de la UI: Ubuntu 22.04/24.04, Chromium/Chrome para WebSerial cuando la build lo exponga, Firefox para simulación/WebSocket y fallback de archivos, GNOME Wayland y una sesión KDE/X11. Estos son objetivos de prueba, no plataformas ya verificadas para 0.4.1. Añadir pruebas de distribución en CI Linux; la compatibilidad de permisos USB y los diálogos del navegador necesitan pruebas manuales con una placa.
+
+Casos específicos: nombre de usuario/carpeta con espacios, rutas con caracteres no ASCII, distintos layouts de teclado (incluido `/` escrito con Shift), cancelación del picker, reconexión de tty, permisos insuficientes, ausencia de backend y exportación JSON de fallback. En ninguna variante deben reaparecer la biblioteca fija, el footer o el monitor permanente por un breakpoint de CSS.

@@ -8,16 +8,50 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 
 **Diseño de 0.4:** [especificación de metrología, instrumentación y ensayos](docs/ESPECIFICACION-0.4.md), con canales DAQ calibrados, Probe, protocolo 4, streaming y sincronización. Es una propuesta técnica; estas funciones todavía no forman parte de la versión publicada.
 
-**Diseño de interfaz 0.4.1:** [propuesta Canvas-First](docs/UX-0.4.1.md), con wireframes, buscador flotante, barra única, inspector contextual y cambios concretos de HTML/CSS/JS. Documento de diseño; el rediseño aún no está aplicado a la interfaz publicada.
+**Diseño de interfaz 0.4.1 para Windows y Linux:** [propuesta Canvas-First](docs/UX-0.4.1.md), con wireframes, buscador flotante, barra única, inspector contextual y cambios concretos de HTML/CSS/JS. Ambos sistemas compartirán el mismo frontend; consulta las [adaptaciones Linux de conexión, archivos y teclado](docs/UX-0.4.1.md#12-aplicación-del-diseño-en-linux). Documento de diseño; el rediseño aún no está aplicado a la interfaz publicada.
 
 **Arquitectura base 0.2:** WebSocket, captura ADC DMA con trigger, Vector/Waveform, subdiagramas, archivos de proyecto, I²C multibyte y WebSerial directo. La explicación técnica y los límites están en [docs/ARQUITECTURA-0.2.md](docs/ARQUITECTURA-0.2.md).
 
 <img width="1533" height="696" alt="image" src="https://github.com/user-attachments/assets/b3df6344-da90-4781-8f01-ca82b9e209f8" />
 
 
-## Linux
+## Descargas y estado de versiones
 
-Descarga `FlowLab-0.3-Linux.tar.gz`, extrae y ejecuta `sh instalar-linux.sh`, luego `sh start.sh`. Necesita Python 3.10+ con venv; los paquetes Python están incluidos para instalación offline. Incluye el mismo editor y soporte ESP32. Consulta [la guía Linux](docs/LINUX.md) para permisos USB, WebSerial y construcción del ejecutable nativo. Esta entrega Linux se distribuye como aplicación Python, no como ELF precompilado.
+| Entrega | Windows | Linux | Estado |
+|---|---|---|---|
+| 0.3 | Portable x64 con Python incluido | Aplicación Python con dependencias offline | [Release disponible](https://github.com/javierssj22/FlowLab/releases/tag/v0.3.0) |
+| 0.4 | DAQ/metrología sobre arquitectura compartida | Mismo alcance previsto | [Especificación técnica](docs/ESPECIFICACION-0.4.md), pendiente de implementación |
+| 0.4.1 | Interfaz Canvas-First | Mismo frontend, adaptación USB/archivos/teclado | [Propuesta de UX](docs/UX-0.4.1.md), pendiente de implementación |
+
+[Windows 0.3](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/FlowLab-0.3-Windows.zip) · [Linux 0.3](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/FlowLab-0.3-Linux.tar.gz) · [Fuentes 0.3](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/FlowLab-0.3-Source.zip) · [SHA-256](https://github.com/javierssj22/FlowLab/releases/download/v0.3.0/SHA256SUMS-0.3.txt).
+
+## Inicio rápido en Linux
+
+Necesitas Python 3.10+ con `venv`. En Debian/Ubuntu, si faltan: `sudo apt install python3 python3-venv`. Descarga el paquete Linux anterior y ejecuta desde su carpeta:
+
+```sh
+tar -xzf FlowLab-0.3-Linux.tar.gz
+cd FlowLab
+sh instalar-linux.sh
+sh start.sh
+```
+
+Se abre `http://127.0.0.1:8765`; termina con `Ctrl+C` en la terminal. El instalador crea `.venv-linux` e instala las dependencias incluidas sin PyPI. Este paquete necesita el Python del sistema: no es un ELF precompilado ni una AppImage.
+
+Para trabajar desde el repositorio, con Git instalado:
+
+```sh
+git clone https://github.com/javierssj22/FlowLab.git
+cd FlowLab
+sh instalar-linux.sh
+sh start.sh
+```
+
+En la aplicación 0.3, abre **Dispositivos** para conectar el ESP32. Elige el puerto enumerado, por ejemplo `/dev/ttyUSB0` o `/dev/ttyACM0`; los nombres COM corresponden a Windows. WebSocket usa el puente Python; WebSerial es opcional si el navegador ofrece esa API. Si falta permiso USB, consulta la [guía Linux](docs/LINUX.md#esp32-por-usb); no hace falta ejecutar FlowLab como root.
+
+Linux comparte los mismos 80 bloques, ejemplos, panel frontal y firmware de Windows. La suite de software, instalación offline y arranque HTTP/WebSocket pasaron en [Ubuntu 22.04 mediante Actions](https://github.com/javierssj22/FlowLab/actions/runs/35667894947). Las pruebas USB físicas y del nuevo diseño 0.4.1 continúan pendientes.
+
+La [guía Linux](docs/LINUX.md) incluye puertos alternativos, WebSerial sin Python, guardado JSON y construcción opcional de un ejecutable nativo. La interfaz minimalista descrita para 0.4.1 se aplicará al mismo código web en ambas plataformas cuando se implemente.
 
 ## Inicio rápido en Windows
 

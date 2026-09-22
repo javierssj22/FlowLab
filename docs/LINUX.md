@@ -1,6 +1,8 @@
 # FlowLab 0.3 para Linux
 
-Esta distribución contiene el código ejecutable mediante Python, la interfaz, el firmware ESP32, los ejemplos, las pruebas y los paquetes Python necesarios. Conserva las funciones de Windows: diagrama de bloques, panel frontal, seis tipos de datos, subVIs, WebSocket, WebSerial y protocolo 2.
+Esta distribución contiene el código ejecutable mediante Python, la interfaz, el firmware ESP32, los ejemplos, las pruebas y los paquetes Python necesarios. Comparte el frontend y las funciones de Windows: 80 tipos de bloque, diagrama de bloques, panel frontal, seis tipos de datos, subVIs, FFT, XY, multímetro, WebSocket, WebSerial y protocolo 3, con compatibilidad de comandos anteriores según el firmware conectado.
+
+**Interfaz 0.4.1 para Linux:** la [propuesta Canvas-First](UX-0.4.1.md#12-aplicación-del-diseño-en-linux) cubre también Linux: Spotlight, barra única, inspector contextual y conexión USB bajo demanda. Es un diseño pendiente de implementación; los pasos de esta guía describen la aplicación 0.3 disponible.
 
 **El archivo FlowLab-0.3-Linux.tar.gz no es un binario nativo ni una AppImage.** Necesita Python 3.10 o posterior con `venv`. Los dos paquetes Python se incluyen como wheels independientes del sistema y de la arquitectura; no incluyen un intérprete Python. El mismo paquete fuente puede instalarse en Linux x86_64 o ARM64 con un intérprete compatible; esta entrega no certifica esas plataformas mediante ejecución física.
 
@@ -70,7 +72,7 @@ sh start-webserial.sh
 
 Abre `http://127.0.0.1:8766`. La placa debe tener ya instalado el firmware; este modo no ofrece compilación/carga desde Arduino CLI.
 
-Los proyectos se guardan en archivos elegidos por el usuario. Si el navegador no implementa File System Access API, usa importación y descarga JSON. En aulas, utiliza cuentas Linux y carpetas separadas por alumno. Se conservan los límites y la política de persistencia de docs/ARQUITECTURA-0.3.md.
+Los proyectos se guardan en archivos elegidos por el usuario. Si el navegador no implementa File System Access API, usa importación y descarga JSON. En aulas, utiliza cuentas Linux y carpetas separadas por alumno. Se conservan los límites y la política de persistencia de [ARQUITECTURA-0.2.md](ARQUITECTURA-0.2.md); las funciones nuevas se explican en [PAQUETE-0.3.md](PAQUETE-0.3.md).
 
 ## Ejecutable nativo opcional
 
@@ -82,7 +84,7 @@ sh scripts/build-linux.sh
 
 Requiere ejecutarse en Linux, Python con venv, acceso a PyPI y herramientas del sistema requeridas por PyInstaller, como `ldd` y `objdump`/binutils. El resultado queda en `work/FlowLab-0.3-Linux-ARQUITECTURA-native.tar.gz` —por ejemplo `x86_64`— y se inicia mediante `./FlowLab` desde su carpeta, conservando `_internal` a su lado. El script incluye una prueba automática de arranque y autenticación WebSocket antes de crear el archivo.
 
-También se incluye el workflow manual **Build Linux native package** para Ubuntu 22.04/x86_64. Puede ejecutarse después de subir el proyecto a un repositorio GitHub propio; no se ha publicado ni ejecutado remotamente durante esta entrega.
+También se incluye el workflow manual [Build Linux native package](https://github.com/javierssj22/FlowLab/actions/workflows/linux-package.yml) para Ubuntu 22.04/x86_64. A la fecha de esta actualización no registra ejecuciones y no hay un ELF nativo publicado en la release 0.3. Su salida, al ejecutarlo, se entrega como artefacto de Actions; no se adjunta automáticamente a Releases.
 
 La arquitectura y la versión de glibc del sistema de compilación afectan la compatibilidad del binario. Constrúyelo sobre la arquitectura destino y una base compatible con tus máquinas. No se genera un ELF Linux con PyInstaller ejecutado en Windows. Referencia: [distribución multiplataforma con PyInstaller](https://www.pyinstaller.org/en/stable/usage.html).
 
@@ -90,6 +92,8 @@ El script conserva licencias de Python, pyserial, websockets y PyInstaller. Si t
 
 ## Validación de esta entrega Linux
 
-Se verifican el contenido y los modos de ejecución del tar, finales de línea LF, instalación offline de los wheels en un entorno Windows limpio, análisis de sintaxis de los scripts con Bash de Git, pruebas del código compartido y arranque HTTP/WebSocket mediante el script de smoke test en Windows. **Bash de Git no es Linux.** Este equipo no tiene WSL instalado ni un runtime Linux disponible: no se ejecutaron el instalador, el servidor ni el empaquetador nativo bajo un kernel Linux.
+La [validación de 0.3 en Actions](https://github.com/javierssj22/FlowLab/actions/runs/35667894947) aprobó las pruebas de software en Ubuntu 22.04, la instalación offline y el smoke test de arranque HTTP/WebSocket bajo Linux. También compiló el firmware para las cinco familias ESP32. Consulta [VALIDACION.md](../VALIDACION.md) para el detalle.
 
-La CI incluye una matriz Windows/Ubuntu con instalación offline y smoke test de Linux. Las pruebas USB físicas, adquisición DMA y permisos del navegador siguen pendientes. Consulta los resultados remotos enlazados en VALIDACION.md.
+Localmente se comprobaron contenido del tar, permisos de ejecución, finales LF, wheels y código compartido desde Windows. **Bash de Git no es Linux**; esa comprobación local es distinta de la ejecución del runner Ubuntu.
+
+Siguen pendientes las pruebas USB físicas, la caracterización ADC/periféricos y la matriz visual de Linux del diseño 0.4.1. No hay una validación del ejecutable nativo Linux ni de ARM64 derivada automáticamente de que la suite Python pase en Ubuntu.
