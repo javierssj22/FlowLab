@@ -17,7 +17,8 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 
 *Captura histórica de la interfaz 0.3; la distribución actual usa Canvas-First.*
 
-<img width="1531" height="692" alt="image" src="https://github.com/user-attachments/assets/1231fc4a-2b08-4a62-8a0b-a26d8e7cf4d0" />
+<img width="1913" height="868" alt="flowlab_gif2" src="https://github.com/user-attachments/assets/30655a25-e857-4b68-ad5a-c41aed455d8b" />
+
 
 
 
