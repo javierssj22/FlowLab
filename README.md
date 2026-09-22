@@ -8,6 +8,8 @@ FlowLab permite construir y ejecutar diagramas de flujo de datos, observar seña
 
 **Diseño de 0.4:** [especificación de metrología, instrumentación y ensayos](docs/ESPECIFICACION-0.4.md), con canales DAQ calibrados, Probe, protocolo 4, streaming y sincronización. Es una propuesta técnica; estas funciones todavía no forman parte de la versión publicada.
 
+**Diseño de interfaz 0.4.1:** [propuesta Canvas-First](docs/UX-0.4.1.md), con wireframes, buscador flotante, barra única, inspector contextual y cambios concretos de HTML/CSS/JS. Documento de diseño; el rediseño aún no está aplicado a la interfaz publicada.
+
 **Arquitectura base 0.2:** WebSocket, captura ADC DMA con trigger, Vector/Waveform, subdiagramas, archivos de proyecto, I²C multibyte y WebSerial directo. La explicación técnica y los límites están en [docs/ARQUITECTURA-0.2.md](docs/ARQUITECTURA-0.2.md).
 
 <img width="1533" height="696" alt="image" src="https://github.com/user-attachments/assets/b3df6344-da90-4781-8f01-ca82b9e209f8" />
